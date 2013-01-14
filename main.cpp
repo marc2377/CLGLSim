@@ -36,7 +36,7 @@ int main(int argc, char * argv[])
 {
   float rungeStep = 0.001;
   int numPart = 0;
-  std::string windowTitle = "GravSim Alpha";
+  std::string windowTitle = "CLGLSim 1.0";
   std::string kernelFileName = "rk4.cl";
   std::string dataFileName = "data.sim";
   std::string str_kernel = "rk2";
