@@ -39,12 +39,21 @@ int main(int argc, char * argv[])
   std::string windowTitle = "CLGLSim 1.0";
   std::string kernelFileName = "rk4.cl";
   std::string dataFileName = "data.sim";
-  std::string str_kernel = "rk2";
+  std::string str_kernel = "Gravity_rk2";
 
-  // Arguments in argv
+  // ----------------- //
+  // Arguments in argv //
+  // ----------------- //
   for(int i=0; i < argc; i++){
-    if(!strcmp(argv[i], "--kernel"))
+    if(!strcmp(argv[i], "--kernel")){
       str_kernel = argv[i+1];
+      if(argv[i+1][2] == '1')
+        CLGLSim::curKernel = 1;
+      else if(argv[i+1][2] == '2')
+        CLGLSim::curKernel = 2;
+      else
+        CLGLSim::curKernel = 4;
+    }
     else if(!strcmp(argv[i], "--num"))
       sscanf(argv[i+1], "%d", &NUM_PART);
   }
@@ -84,6 +93,12 @@ int main(int argc, char * argv[])
 
     // Build the function str_kernel in the kernel 
     clgl.CLGLBuildKernel(str_kernel);
+    str_kernel = "Gravity_rk1";
+    clgl.CLGLBuildKernel(str_kernel);
+    str_kernel = "Gravity_rk2";
+    clgl.CLGLBuildKernel(str_kernel);
+    str_kernel = "Gravity_rk4";
+    clgl.CLGLBuildKernel(str_kernel);
 
     std::cout << "-----------------------------------" << std::endl;
     std::cout << "Pushing Data to Device" << std::endl;
@@ -99,18 +114,21 @@ int main(int argc, char * argv[])
     std::vector<cl::Kernel> ker = *clgl.CLGLGetKernel();
 
     // Set the Kernel ARGS
-    clgl.CLGLSetArg(0, buff[0], ker[0]);
-    clgl.CLGLSetArg(1, buff[1], ker[0]);
-    clgl.CLGLSetArg(2, mem[0], ker[0]);
-    clgl.CLGLSetArg(3, sizeof(float), &rungeStep, ker[0]);
-    clgl.CLGLSetArg(4, sizeof(int), &numPart, ker[0]);
+    for(unsigned int i=0; i < ker.size(); i++){
+      clgl.CLGLSetArg(0, buff[0], ker[i]);
+      clgl.CLGLSetArg(1, buff[1], ker[i]);
+      clgl.CLGLSetArg(2, mem[0], ker[i]);
+      clgl.CLGLSetArg(3, sizeof(float), &rungeStep, ker[i]);
+      clgl.CLGLSetArg(4, sizeof(int), &numPart, ker[i]);
+    }
 
     // Set CLGLSim static members
     CLGLSim::vbo = clgl.CLGLGetVBO();
     CLGLSim::ParticlesNum = numPart;
     CLGLSim::rungeStep = rungeStep;
     CLGLSim::clgl = &(clgl);
-    CLGLSim::rkx = &(ker[0]);
+    CLGLSim::rkx = &ker;
+    CLGLSim::curKernel = 2;
 
     std::cout << "-----------------------------------" << std::endl;
     std::cout << "Runing the Window" << std::endl;

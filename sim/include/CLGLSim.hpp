@@ -13,6 +13,12 @@
 #include <vector>
 #include <stdlib.h>
 
+enum kernel{
+  rk1,
+  rk2,
+  rk4
+};
+
 class CLGLSim
 {
   public:
@@ -20,8 +26,9 @@ class CLGLSim
     // Attributes //
     // ---------- //
     //Kernel
-    static cl::Kernel * rkx;
-   
+    static std::vector<cl::Kernel> * rkx;
+    static int curKernel;
+
     //CLGL object
     static CLGL * clgl;
     

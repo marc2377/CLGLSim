@@ -16,7 +16,6 @@
 #include <GL/glx.h>
 
 #include "CLGLLinux.hpp"
-#include "CLGLWindow.hpp"
 
 // ----------- //
 // Constructor //

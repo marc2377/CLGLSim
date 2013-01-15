@@ -9,7 +9,7 @@
 #define MIN_DISTANCE 0.3
 #define MAX_DISTANCE 10.00
 
-__kernel void  rk1(
+__kernel void  Gravity_rk1(
     __global float * mass, 
     __global float4 * vel,
     __global float4 * pos, 
@@ -40,7 +40,7 @@ __kernel void  rk1(
   }
 }
 
-__kernel void rk2(
+__kernel void Gravity_rk2(
     __global float * mass, 
     __global float4 * vel,
     __global float4 * pos, 
@@ -90,7 +90,7 @@ __kernel void rk2(
   }
 }
 
-__kernel void rk4(
+__kernel void Gravity_rk4(
     __global float * mass, 
     __global float4 * vel,
     __global float4 * pos,

@@ -48,13 +48,14 @@ int CLGLWindow::NumParticles = 0;
 CLGLWindow::CLGLWindow()
 {
   // GLUT Functions
-  glutDisplayFunc(CLGLWindowRender); //main rendering function
-  glutTimerFunc(30, CLGLWindowTimerCB, 30); //determin a minimum time between frames
+  glutDisplayFunc(CLGLWindowRender); //Main Rendering Function
+  glutTimerFunc(30, CLGLWindowTimerCB, 30); //Determinate a Minimum Time Between Frames
   glutKeyboardFunc(CLGLWindowKeyboard);
   glutSpecialFunc(CLGLWindowSpecialKeys);
   glutMouseFunc(CLGLWindowMouse);
   glutMotionFunc(CLGLWindowMotion);
   glutIdleFunc(CLGLWindowCalculateFPS);
+  CLGLWindowCreateMenus(); //Creates Menus
 
   glShadeModel(GL_SMOOTH);
   glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -146,9 +147,11 @@ void CLGLWindowDrawInfo(void)
     std::stringstream fps(std::stringstream::in | std::stringstream::out);
     std::stringstream simTime(std::stringstream::in | std::stringstream::out);
     static std::stringstream pause(std::stringstream::in | std::stringstream::out);
+    static std::stringstream kernel(std::stringstream::in | std::stringstream::out);
     static float simulationTime = 0;
 
     pause.seekp(std::ios::beg);
+    kernel.seekp(std::ios::beg);
 
     // Draw FPS
     fps << "FPS: " << CLGLWindow::fps;
@@ -157,17 +160,21 @@ void CLGLWindowDrawInfo(void)
     // Draw How many particles are beeing simulated and if it is paused
     if(CLGLWindow::play == ON){
       pause << "Simulating " << CLGLWindow::NumParticles << " Particles";
-      CLGLWindowDrawString(pause.str().c_str(), 1, 7, CLGLWindow::stringColor, CLGLWindow::font);
+      CLGLWindowDrawString(pause.str().c_str(), 1, 33, CLGLWindow::stringColor, CLGLWindow::font);
     }
     else{
-      CLGLWindowDrawString("Paused", 1, 7, CLGLWindow::stringColor, CLGLWindow::font);
+      CLGLWindowDrawString("Paused", 1, 33, CLGLWindow::stringColor, CLGLWindow::font);
     }
 
     // Draw Simulaion time
     if(CLGLWindow::play == ON)
       simulationTime += CLGLSim::rungeStep;
     simTime << "Simulation Time: " << simulationTime;
-    CLGLWindowDrawString(simTime.str().c_str(), CLGLWindow::window_width - 245, 1, CLGLWindow::stringColor, CLGLWindow::font);
+    CLGLWindowDrawString(simTime.str().c_str(), CLGLWindow::window_width - 245, 7, CLGLWindow::stringColor, CLGLWindow::font);
+
+    // Draw Current Kernel in Use
+    kernel << "Kernel: Gravity with Runge Kutta " << CLGLSim::curKernel << std::endl;
+    CLGLWindowDrawString(kernel.str().c_str(), 1, 7, CLGLWindow::stringColor, CLGLWindow::font);
   }
 }
 
@@ -237,6 +244,73 @@ void CLGLWindowCalculateFPS(void)
 
     //  Reset frame count
     frameCount = 0;
+  }
+}
+
+/*
+ * Setup And Creates Menus
+ */
+void CLGLWindowCreateMenus(void){
+  int kernelMenu;
+
+  // Create Sub Menu
+  kernelMenu = glutCreateMenu(CLGLWindowMenus);
+  glutAddMenuEntry("Runge Kutta 1", RK1);
+  glutAddMenuEntry("Runge Kutta 2", RK2);
+  glutAddMenuEntry("Runge Kutta 4", RK4);
+
+  // Create Menu
+  glutCreateMenu(CLGLWindowMenus);
+  glutAddMenuEntry("Pause", PLAY);
+  glutAddMenuEntry("Hide Info", INFO);
+  glutAddSubMenu("Change Kernel", kernelMenu);
+  glutAddMenuEntry("Quit", QUIT);
+
+  // Attach Menu to Mouse Button
+  glutAttachMenu(GLUT_MIDDLE_BUTTON);
+}
+
+/*
+ * Menus Handler Function
+ */
+void CLGLWindowMenus(int value)
+{
+  switch(value){
+    case PLAY: 
+      if(CLGLWindow::play == ON){
+        CLGLWindow::play = OFF;   //Play Pause Button
+        glutChangeToMenuEntry(1, "Play", PLAY);
+      }
+      else{
+        CLGLWindow::play = ON;
+        glutChangeToMenuEntry(1, "Pause", PLAY);
+      }
+      break;
+    case INFO:
+      if(CLGLWindow::showInfo == ON){
+        CLGLWindow::showInfo = OFF;
+        glutChangeToMenuEntry(2, "Show Info", INFO);
+      }
+      else{
+        CLGLWindow::showInfo = ON;
+        glutChangeToMenuEntry(2, "Hide Info", INFO);
+      }
+      break;
+    case RK1:
+      (*CLGLSim::rkx)[0] = (*CLGLSim::rkx)[1];
+      CLGLSim::curKernel = 1;
+      break;
+    case RK2:
+      (*CLGLSim::rkx)[0] = (*CLGLSim::rkx)[2];
+      CLGLSim::curKernel = 2;
+      break;
+    case RK4:
+      (*CLGLSim::rkx)[0] = (*CLGLSim::rkx)[3];
+      CLGLSim::curKernel = 4;
+      break;
+    case QUIT:
+      CLGLWindowDestroy();
+      break;
   }
 }
 

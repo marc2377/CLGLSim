@@ -9,11 +9,6 @@
 
 #include "CLGLError.hpp"
 
-/*#define CASE(cl_error, STR) case cl_error: \
-                    str = (char*)malloc(sizeof(char) * (strlen(STR)));  \
-                    strcpy((char*)STR, str);  \
-                    return str;
-*/
 #define CASE(cl_error, STR) case cl_error: \
                               return new std::string(STR);
 

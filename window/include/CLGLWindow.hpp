@@ -22,6 +22,15 @@
 #define ON 1
 #define OFF 0
 
+enum menus {
+  PLAY,
+  INFO,
+  RK1,
+  RK2,
+  RK4,
+  QUIT
+};
+
 class CLGLWindow
 {
   public:
@@ -31,22 +40,22 @@ class CLGLWindow
     // Window Properties
     static int window_height, window_width;
     
-    // mouse controls
+    // Mouse Controls
     static int mouse_old_x, mouse_old_y;
     static int mouse_buttons;
     
-    // Axis orientation
+    // Axis Orientation
     static float rotate_x, rotate_y;
     static float translate_z;
     static float scale[3];
     
-    // Glut Window ID
+    // GLUT Window ID
     static int glutWindowHandle;
-    
+ 
     // Frames per Second
     static float fps;
     
-    // Font and characters size
+    // Font and Characters Size
     static bool showInfo;
     static void * font;
     static int fontSize;
@@ -55,7 +64,7 @@ class CLGLWindow
     // If the OpenCL Kernel is running play == ON
     static bool play;
     
-    // Number of particles beeing simulated
+    // Number of Particles Beeing Simulated
     static int NumParticles;
 
     // ------- //
@@ -70,6 +79,8 @@ class CLGLWindow
 // Arguments for GLUT Functions //
 // ---------------------------- //
 void CLGLWindowRender(void);
+void CLGLWindowCreateMenus(void);
+void CLGLWindowMenus(int value);
 void CLGLWindowDestroy(void);
 void CLGLWindowTimerCB(int ms);
 void CLGLWindowKeyboard(unsigned char key, int x, int y);

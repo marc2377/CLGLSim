@@ -13,7 +13,7 @@ INCLUDE_PATH=-Iclgl/include/ -Iwindow/include -Isim/include
 CL_PATH_ATI=/opt/AMDAPP/include/
 CL_PATH_NVIDIA=$(HOME)/NVIDIA_GPU_Computing_SDK/OpenCL/common/inc
 
-OUTPUT=GravSim
+OUTPUT=CLGLSim
 
 all:
 	cd clgl; make

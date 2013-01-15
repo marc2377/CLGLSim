@@ -16,12 +16,13 @@ CLGL *CLGLSim::clgl = NULL;
 std::vector<int> *CLGLSim::vbo = NULL;
 
 // Kernel
-cl::Kernel * CLGLSim::rkx = NULL;
+std::vector<cl::Kernel> * CLGLSim::rkx = NULL;
+int CLGLSim::curKernel = 0;
 
 /*
  * Run the kernel Function
  */
 void CLGLSim::CLGLRunKernel()
 {
-  CLGLSim::clgl->CLGLRunKernel(*CLGLSim::rkx, CLGLSim::ParticlesNum);
+  CLGLSim::clgl->CLGLRunKernel((*CLGLSim::rkx)[0], CLGLSim::ParticlesNum);
 }
