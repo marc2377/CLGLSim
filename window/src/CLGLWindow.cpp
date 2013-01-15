@@ -34,7 +34,7 @@ float CLGLWindow::fps = 0.0f;
 bool CLGLWindow::play = ON;
 
 // String variables
-bool CLGLWindow::showInfo = true;
+bool CLGLWindow::showInfo = ON;
 void * CLGLWindow::font = GLUT_BITMAP_TIMES_ROMAN_24; //GLUT_BITMAP_8_BY_13;
 int CLGLWindow::fontSize = 30;
 float CLGLWindow::stringColor[4] = {1.0, 1.0, 1.0, 1.0};
