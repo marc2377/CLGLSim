@@ -5,7 +5,12 @@
 //                                //
 //--------------------------------//
 
-#include "CLGLLinux.hpp"
+#ifdef WIN32
+  #include "CLGLWindows.hpp"
+#else
+  #include "CLGLLinux.hpp"
+#endif
+
 #include "CLGLWindow.hpp"
 #include "CLGLError.hpp"
 
@@ -70,7 +75,11 @@ int main(int argc, char * argv[])
  
   try{
     // Start CLGL
+#ifdef WIN32
+    CLGLWindows clgl = CLGLWindows();
+#else
     CLGLLinux clgl = CLGLLinux();
+#endif
     clgl.CLGLStart(argc, argv, windowTitle, CLGLWindow::window_height, CLGLWindow::window_width);
     
     // Get Window ID
@@ -169,18 +178,18 @@ body * loadData(std::string dataFileName, int *numPart)
 
     //distribute the particles in a random circle around z axis
     float rad = rand_float(.2, .5);
-    float x = rad*cos(2*3.14 * i/num);//*sin(2*i);
-    float z = 2*rad*tanh(2*3.14 * i/num)*cos(2*i);//0;// -.1 + .2f * i/num;
-    float y = 2*rad*sin(2*3.14 * i/num);//*sin(2*i);
+    float z = 0;//rad*tanh(2*3.14 * i/num);//*sin(2*i);
+    float x = 2*rad*cos(2*3.14 * i/num)*cos(2*i);//0;// -.1 + .2f * i/num;
+    float y = 2*rad*sin(2*3.14 * i/num)*sin(2*i);
     part->pos[i].x = x;
     part->pos[i].y = y;
     part->pos[i].z = z;
     part->pos[i].w = 0.0f;
 
     //give some initial velocity 
-    part->vel[i].x = rad*sin(5*i+1);
-    part->vel[i].y = rad*cos(6*i+i);
-    part->vel[i].z = rad*sin(i)*cos(i)*cos(i);
+    part->vel[i].x = 0;//rad*sin(5*i+1);
+    part->vel[i].y = 0;//rad*cos(6*i+i);
+    part->vel[i].z = 0;//rad*sin(i)*cos(i)*cos(i);
     part->vel[i].w = 0;
 
     //just make them red and full alpha
