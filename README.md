@@ -6,5 +6,6 @@ CLGLSim has the folowing simulation implementated
 TODO
 
  - Fix the constants units
- - Implement Data Loader
+ - Implement better Data Loader
+ - Implement systems loader like a galaxy loader
  - Implement Other Physical Forces

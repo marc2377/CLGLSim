@@ -6,8 +6,8 @@
 //------------------------------------//
 
 #define G 1
-#define MIN_DISTANCE 0.3
-#define MAX_DISTANCE 10.00
+#define MIN_DISTANCE 0.0003
+#define MAX_DISTANCE 1000.00
 
 __kernel void  Gravity_rk1(
     __global float * mass, 

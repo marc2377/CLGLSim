@@ -13,28 +13,11 @@
 #include "CLGLWindow.hpp"
 #include "CLGLError.hpp"
 #include "CLGLParser.hpp"
+#include "CLGLDataLoader.hpp"
 
 #include <string>
 #include <fstream>
 #include <CL/cl.hpp>
-
-
-typedef struct t_vector4
-{
-  float x,y,z,w;
-} vector;
-
-typedef struct t_body
-{
-  GLfloat* mass;
-  std::vector<vector> pos;
-  std::vector<vector> vel;
-  std::vector<vector> color;
-} body;
-
-// Load data from file dataFileName and returns also the 
-// number of particles
-body * loadData(std::string dataFileName, int numPart);
 
 int main(int argc, char * argv[])
 {
@@ -75,7 +58,7 @@ int main(int argc, char * argv[])
     std::cout << "-----------------------------------" << std::endl;
     std::cout << "Loading Data" << std::endl;
     std::cout << "-----------------------------------" << std::endl;
-    hostData = loadData(dataFileName, NUM_PART);
+    hostData = loadDataFromFile(dataFileName, &NUM_PART);
    
     // Set the Number of Particles beeing simulated
     CLGLWindow::NumParticles = NUM_PART;
@@ -136,53 +119,3 @@ int main(int argc, char * argv[])
 
   return 0;
 }
-
-// ------------------ //
-// Gen DATA Functions //
-// ------------------ //
-
-float rand_float(float mn, float mx)
-{
-      float r = random() / (float) RAND_MAX;
-          return mn + (mx-mn)*r;
-}
-
-body * loadData(std::string dataFileName, int numPart)
-{
-  int num = numPart;
-  body * part = new body[1];
-  
-  part->mass = new GLfloat[num];
-  part->pos = * new std::vector<vector>(num);
-  part->color = * new std::vector<vector>(num);
-  part->vel = * new std::vector<vector>(num);
-  //fill our vectors with initial data
-  for(int i = 0; i < num; i++)
-  {
-    part->mass[i] = 1.0f;
-
-    //distribute the particles in a random circle around z axis
-    float rad = rand_float(.2, .5);
-    float z = rad*tanh(2*3.14 * i/num);//*sin(2*i);
-    float x = 2*rad*cos(2*3.14 * i/num)*cos(2*i);//0;// -.1 + .2f * i/num;
-    float y = 2*rad*sin(2*3.14 * i/num)*sin(2*i);
-    part->pos[i].x = x;
-    part->pos[i].y = y;
-    part->pos[i].z = z;
-    part->pos[i].w = 0.0f;
-
-    //give some initial velocity 
-    part->vel[i].x = x;//rad*sin(5*i+1);
-    part->vel[i].y = y;//rad*cos(6*i+i);
-    part->vel[i].z = z;//rad*sin(i)*cos(i)*cos(i);
-    part->vel[i].w = 0;
-
-    //just make them red and full alpha
-    part->color[i].x = 1.0;
-    part->color[i].y = 1.0;
-    part->color[i].z = 1.0;
-    part->color[i].w = 1.0;
-  }
-  return part;
-}
-
