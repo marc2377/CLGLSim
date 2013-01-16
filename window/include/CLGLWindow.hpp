@@ -67,6 +67,9 @@ class CLGLWindow
     // Number of Particles Beeing Simulated
     static int NumParticles;
 
+    // The refresh rate of the particles and the screen
+    static int refreshRate;
+
     // ------- //
     // Methods //
     // ------- //

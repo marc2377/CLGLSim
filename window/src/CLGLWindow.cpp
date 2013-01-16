@@ -42,6 +42,9 @@ float CLGLWindow::stringColor[4] = {1.0, 1.0, 1.0, 1.0};
 // Number of Particles
 int CLGLWindow::NumParticles = 0;
 
+// Start with 1 iteration per frame
+int CLGLWindow::refreshRate = 1;
+
 /*
  * Constructor. Initate the Window
  */
@@ -88,8 +91,10 @@ void CLGLWindowRender(void)
   // Updates The Positions and Velocities //
   // ------------------------------------ //
   // Updates the particle system by calling the kernel
-  if(CLGLWindow::play == ON)
-    CLGLSim::CLGLRunKernel();
+  if(CLGLWindow::play == ON){
+    for(register unsigned short int i=0; i < CLGLWindow::refreshRate; i++)
+      CLGLSim::CLGLRunKernel();
+  }
 
   // -------------------------- //
   // Draw information on screen //
@@ -342,6 +347,9 @@ void CLGLWindowKeyboard(unsigned char key, int x, int y)
   //this way we can exit the program cleanly
   switch(key)
   {
+    // ---------- //
+    // QUIT CASES //
+    // ---------- //
     case '\033': // escape quits
     case '\015': // Enter quits    
     case 'Q':    // Q quits
@@ -349,6 +357,9 @@ void CLGLWindowKeyboard(unsigned char key, int x, int y)
       // Cleanup up and quit
       CLGLWindowDestroy();
       break;
+    // ------------------ //
+    // PLAY / PAUSE CASES //
+    // ------------------ //
     case ' ':
       if(CLGLWindow::play == ON){
         CLGLWindow::play = OFF;   //Play Pause Button
@@ -359,6 +370,9 @@ void CLGLWindowKeyboard(unsigned char key, int x, int y)
         glutChangeToMenuEntry(1, "Pause", PLAY);
       }
       break;
+    // --------------- //
+    // Show Info Cases //
+    // --------------- //
     case 'i':
     case 'I':
       if(CLGLWindow::showInfo == ON){
@@ -369,6 +383,19 @@ void CLGLWindowKeyboard(unsigned char key, int x, int y)
         CLGLWindow::showInfo = ON;
         glutChangeToMenuEntry(2, "Hide Info", INFO);
       }
+      break;
+    // ------------------ //
+    // Refresh Rate Cases //
+    // ------------------ //
+    case 'l':
+    case 'L':
+      CLGLWindow::refreshRate++;
+      break;
+    case 'j':
+    case 'J':
+      CLGLWindow::refreshRate--;
+      if(CLGLWindow::refreshRate <= 0)
+        CLGLWindow::refreshRate = 1;
       break;
   }
 }
