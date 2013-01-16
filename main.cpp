@@ -163,7 +163,7 @@ body * loadData(std::string dataFileName, int numPart)
 
     //distribute the particles in a random circle around z axis
     float rad = rand_float(.2, .5);
-    float z = 0;//rad*tanh(2*3.14 * i/num);//*sin(2*i);
+    float z = rad*tanh(2*3.14 * i/num);//*sin(2*i);
     float x = 2*rad*cos(2*3.14 * i/num)*cos(2*i);//0;// -.1 + .2f * i/num;
     float y = 2*rad*sin(2*3.14 * i/num)*sin(2*i);
     part->pos[i].x = x;
@@ -172,9 +172,9 @@ body * loadData(std::string dataFileName, int numPart)
     part->pos[i].w = 0.0f;
 
     //give some initial velocity 
-    part->vel[i].x = 0;//rad*sin(5*i+1);
-    part->vel[i].y = 0;//rad*cos(6*i+i);
-    part->vel[i].z = 0;//rad*sin(i)*cos(i)*cos(i);
+    part->vel[i].x = x;//rad*sin(5*i+1);
+    part->vel[i].y = y;//rad*cos(6*i+i);
+    part->vel[i].z = z;//rad*sin(i)*cos(i)*cos(i);
     part->vel[i].w = 0;
 
     //just make them red and full alpha
