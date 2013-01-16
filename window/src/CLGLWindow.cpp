@@ -350,11 +350,25 @@ void CLGLWindowKeyboard(unsigned char key, int x, int y)
       CLGLWindowDestroy();
       break;
     case ' ':
-      CLGLWindow::play = (!(CLGLWindow::play | OFF)) & ON;
+      if(CLGLWindow::play == ON){
+        CLGLWindow::play = OFF;   //Play Pause Button
+        glutChangeToMenuEntry(1, "Play", PLAY);
+      }
+      else{
+        CLGLWindow::play = ON;
+        glutChangeToMenuEntry(1, "Pause", PLAY);
+      }
       break;
     case 'i':
     case 'I':
-      CLGLWindow::showInfo = CLGLWindow::showInfo ^ true;
+      if(CLGLWindow::showInfo == ON){
+        CLGLWindow::showInfo = OFF;
+        glutChangeToMenuEntry(2, "Show Info", INFO);
+      }
+      else{
+        CLGLWindow::showInfo = ON;
+        glutChangeToMenuEntry(2, "Hide Info", INFO);
+      }
       break;
   }
 }
