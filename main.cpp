@@ -25,15 +25,14 @@ int main(int argc, char * argv[])
   int NUM_PART;
   std::string windowTitle = "CLGLSim 1.0";
   std::string kernelFileName = "rk4.cl";
-  CLGLParser in = CLGLParser(argc, argv);
+  CLGLParser console = CLGLParser(argc, argv);
 
-  CLGLSim::curKernel = in.curKernel;
-  NUM_PART = in.particlesNum;
-  rungeStep = in.rungeStep;
-  std::string dataFileName = in.dataFile;
+  CLGLSim::curKernel = console.curKernel;
+  NUM_PART = console.particlesNum;
+  rungeStep = console.rungeStep;
 
   std::cout << "-----------------------------------" << std::endl;
-  std::cout << "Using " << in.kernel << " Kernel !" << std::endl;
+  std::cout << "Using " << console.kernel << " Kernel !" << std::endl;
   std::cout << "-----------------------------------" << std::endl;
 
   body * hostData;
@@ -58,7 +57,10 @@ int main(int argc, char * argv[])
     std::cout << "-----------------------------------" << std::endl;
     std::cout << "Loading Data" << std::endl;
     std::cout << "-----------------------------------" << std::endl;
-    hostData = loadDataFromFile(dataFileName, &NUM_PART);
+    if(console.isParticlesNumSet())
+      hostData = loadData(NUM_PART);
+    else
+      hostData = loadDataFromFile(console.dataFile, &NUM_PART);
    
     // Set the Number of Particles beeing simulated
     CLGLWindow::NumParticles = NUM_PART;
@@ -69,14 +71,14 @@ int main(int argc, char * argv[])
     // Build the Source of the kernel
     clgl.CLGLBuildProgramSource(kernelFileName);
 
-    // Build the function in.kernel in the kernel 
-    clgl.CLGLBuildKernel(in.kernel);
-    in.kernel = "Gravity_rk1";
-    clgl.CLGLBuildKernel(in.kernel);
-    in.kernel = "Gravity_rk2";
-    clgl.CLGLBuildKernel(in.kernel);
-    in.kernel = "Gravity_rk4";
-    clgl.CLGLBuildKernel(in.kernel);
+    // Build the function console.kernel in the kernel 
+    clgl.CLGLBuildKernel(console.kernel);
+    console.kernel = "Gravity_rk1";
+    clgl.CLGLBuildKernel(console.kernel);
+    console.kernel = "Gravity_rk2";
+    clgl.CLGLBuildKernel(console.kernel);
+    console.kernel = "Gravity_rk4";
+    clgl.CLGLBuildKernel(console.kernel);
 
     std::cout << "-----------------------------------" << std::endl;
     std::cout << "Pushing Data to Device" << std::endl;

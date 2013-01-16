@@ -182,6 +182,13 @@ void CLGL::CLGLBuildProgramSource(std::string programName, std::string compilerF
   // Opens the file  
   programFile.open(programName.data());
   
+  // Check if file is valid
+  if(!programFile){
+    std::cout << "File: " << programName.c_str() << " is not valid as data file!" << std::endl;
+    std::cout << "CLGLSim will be closed" << std::endl;
+    exit(1);
+  }   
+
   // Get the size of the file
   begin = programFile.tellg();
   programFile.seekg(0, std::ios::end);

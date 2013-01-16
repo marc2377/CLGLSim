@@ -89,7 +89,7 @@ void CLGLWindowRender(void)
   // ------------------------------------ //
   // Updates the particle system by calling the kernel
   if(CLGLWindow::play == ON)
-   CLGLSim::CLGLRunKernel();
+    CLGLSim::CLGLRunKernel();
 
   // -------------------------- //
   // Draw information on screen //

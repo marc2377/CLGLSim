@@ -16,7 +16,7 @@ float rand_float(float mn, float mx)
           return mn + (mx-mn)*r;
 }
 
-body * loadData(std::string dataFileName, int numPart)
+body * loadData(int numPart)
 {
   int num = numPart;
   body * part = new body[1];
