@@ -38,7 +38,7 @@ body * loadData(std::string dataFileName, int numPart);
 
 int main(int argc, char * argv[])
 {
-  float rungeStep = 0.001;
+  float rungeStep;
   int NUM_PART;
   std::string windowTitle = "CLGLSim 1.0";
   std::string kernelFileName = "rk4.cl";
@@ -47,6 +47,7 @@ int main(int argc, char * argv[])
 
   CLGLSim::curKernel = in.curKernel;
   NUM_PART = in.particlesNum;
+  rungeStep = in.rungeStep;
 
   std::cout << "-----------------------------------" << std::endl;
   std::cout << "Using " << in.kernel << " Kernel !" << std::endl;

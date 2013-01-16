@@ -21,6 +21,7 @@ class CLGLParser
     std::string kernelFile;
     int curKernel;
     int particlesNum;
+    float rungeStep;
 
     CLGLParser(int argc, char * argv[]);
 };
