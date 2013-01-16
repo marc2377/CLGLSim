@@ -21,14 +21,20 @@ void printHelp(void)
   std::cout << "--------------------------------------------------------------------" << std::endl;
   std::cout << "|  --precision : Set the precision for simulation                  |" << std::endl; 
   std::cout << "--------------------------------------------------------------------" << std::endl;
+  std::cout << "|  --data-file : Set data file to load for simulation              |" << std::endl; 
+  std::cout << "--------------------------------------------------------------------" << std::endl;
   std::cout << "|  --help : Show this help message                                 |" << std::endl; 
   std::cout << "====================================================================" << std::endl;
 }
 
 CLGLParser::CLGLParser(int argc, char * argv[])
 {
+  // ---------------------- //
+  // Default configurations //
+  // ---------------------- //
   this->curKernel = 2;
   this->kernel = "Gravity_rk2";
+  this->dataFile = "data.sim";
   this->particlesNum = 1000;
   this->rungeStep = 0.001;
 
@@ -47,15 +53,19 @@ CLGLParser::CLGLParser(int argc, char * argv[])
     // IF --num
     else if(!strcmp(argv[i], "--num"))
       sscanf(argv[i+1], " %d", &(this->particlesNum));
+    // IF --precision
     else if(!strcmp(argv[i], "--precision"))
       sscanf(argv[i+1], " %f", &(this->rungeStep));
-    // IF --kernel-file
-    if(!strcmp(argv[i], "--help")){
+    // IF --data-file
+    else if(!strcmp(argv[i], "--data-file"))
+      this->dataFile = argv[i+1];
+    // IF --help
+    else if(!strcmp(argv[i], "--help")){
       printHelp();
       exit(0);
     }
   }
-  // IF --kernel-file
+  // IF --help
   if(!strcmp(argv[i], "--help")){
     printHelp();
     exit(0);

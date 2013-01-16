@@ -18,7 +18,7 @@ class CLGLParser
 {
   public:
     std::string kernel;
-    std::string kernelFile;
+    std::string dataFile;
     int curKernel;
     int particlesNum;
     float rungeStep;

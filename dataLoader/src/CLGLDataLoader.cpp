@@ -55,7 +55,6 @@ body * loadData(std::string dataFileName, int numPart)
   return part;
 }
 
-
 #define getAtributes(FIELD); \
   file >> str; \
   if(str.compare(FIELD))\
@@ -72,6 +71,14 @@ body * loadDataFromFile(std::string dataFileName, int * numPart)
   body * b = new body;
   *numPart = 0;
 
+  // IF file exists
+  if(!file){
+    std::cout << "File: " << dataFileName.c_str() << " is not valid as data file!" << std::endl;
+    std::cout << "CLGLSim will be closed" << std::endl;
+    exit(1);
+  }
+
+  // Get the number of particles 
   while(!file.eof()){
     file >> str;
     if(!str.compare("r"))

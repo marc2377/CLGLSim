@@ -25,12 +25,12 @@ int main(int argc, char * argv[])
   int NUM_PART;
   std::string windowTitle = "CLGLSim 1.0";
   std::string kernelFileName = "rk4.cl";
-  std::string dataFileName = "data.sim";
   CLGLParser in = CLGLParser(argc, argv);
 
   CLGLSim::curKernel = in.curKernel;
   NUM_PART = in.particlesNum;
   rungeStep = in.rungeStep;
+  std::string dataFileName = in.dataFile;
 
   std::cout << "-----------------------------------" << std::endl;
   std::cout << "Using " << in.kernel << " Kernel !" << std::endl;
@@ -44,10 +44,10 @@ int main(int argc, char * argv[])
  
   try{
     // Start CLGL
-#ifdef WIN32
-    CLGLWindows clgl = CLGLWindows();
-#else
+#ifndef WIN32
     CLGLLinux clgl = CLGLLinux();
+#else 
+    CLGLWindows clgl = CLGLWindows();
 #endif
     clgl.CLGLStart(argc, argv, windowTitle, CLGLWindow::window_height, CLGLWindow::window_width);
     

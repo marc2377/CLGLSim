@@ -33,7 +33,7 @@ class CLGLWindows: public CLGL
     void CLGLCreateContext(void);
     void CLGLCreateCommandQueue(void);
   public:
-    CLGLLinux(void);
+    CLGLWindows(void);
 };
 
 #endif
