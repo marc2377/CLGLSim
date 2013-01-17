@@ -5,7 +5,7 @@
 //                                    //
 //------------------------------------//
 
-//#define G 0.004302
+/*#define G 0.004302*/
 #define G 1
 #define MIN_DISTANCE 0.1
 #define MAX_DISTANCE 100000.00
