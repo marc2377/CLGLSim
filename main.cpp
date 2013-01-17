@@ -60,7 +60,7 @@ int main(int argc, char * argv[])
     if(console.isDataFileSet())
       hostData = loadDataFromFile(console.dataFile, &NUM_PART);
     else
-      hostData = loadData(NUM_PART);
+        hostData = genData(NUM_PART);
    
     // Set the Number of Particles beeing simulated
     CLGLWindow::NumParticles = NUM_PART;

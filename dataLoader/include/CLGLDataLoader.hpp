@@ -29,6 +29,6 @@ typedef struct t_body
 
 // Load data from file dataFileName and returns also
 // the number of particles
-body * loadData(int numPart);
+body * genData(int numPart);
 
 body * loadDataFromFile(std::string dataFileName, int * numPart);

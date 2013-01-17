@@ -180,7 +180,7 @@ void CLGL::CLGLBuildProgramSource(std::string programName, std::string compilerF
   std::string programSource;
 
   // Opens the file  
-  programFile.open(programName.data());
+  programFile.open(programName.c_str());
   
   // Check if file is valid
   if(!programFile){
@@ -195,7 +195,7 @@ void CLGL::CLGLBuildProgramSource(std::string programName, std::string compilerF
   end = programFile.tellg();
   programFile.seekg(0, std::ios::beg);
   lenth = end - begin;
-  buffer = (char*)malloc(sizeof(char) * lenth);
+  buffer = new char[lenth];
   
   // Stores the content of the file in buffer
   programFile.read(buffer, lenth);

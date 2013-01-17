@@ -10,13 +10,38 @@
 // ------------------ //
 // Gen DATA Functions //
 // ------------------ //
-float rand_float(float mn, float mx)
+
+void genGalaxy(vector color, vector center, body * part, int begin, int end)
 {
-      float r = random() / (float) RAND_MAX;
-          return mn + (mx-mn)*r;
+  for(int i = begin; i < end; i++)
+  {
+    part->mass[i] = 1.0f;
+
+    //distribute the particles in a random circle around z axis
+    float x = (i-begin)*cos((i-begin)) / (float) (2 * end-begin);
+    float y = (i-begin)*sin((i-begin)) / (float) (2 * end-begin);
+    float z = 0;
+    part->pos[i].x = x + center.x;
+    part->pos[i].y = y + center.y;
+    part->pos[i].z = z + center.z;
+    part->pos[i].w = 0.0f;
+
+    //give some initial velocity 
+    part->vel[i].x = -80 * y;
+    part->vel[i].y =  80 * x;
+    part->vel[i].z = 0;
+    part->vel[i].w = 0;
+
+    //just make them red and full alpha
+    part->color[i].x = color.x;
+    part->color[i].y = color.y;
+    part->color[i].z = color.z;
+    part->color[i].w = color.w;
+  }
+  return;
 }
 
-body * loadData(int numPart)
+body * genData(int numPart)
 {
   int num = numPart;
   body * part = new body[1];
@@ -25,58 +50,16 @@ body * loadData(int numPart)
   part->pos = * new std::vector<vector>(num);
   part->color = * new std::vector<vector>(num);
   part->vel = * new std::vector<vector>(num);
-  //fill our vectors with initial data
-  for(int i = 0; i < num / 2; i++)
-  {
-    part->mass[i] = 1.0f;
-
-    //distribute the particles in a random circle around z axis
-    float x = i*cos(i) / (float) num;
-    float y = i*sin(i) / (float) num;
-    float z = 0;
-    part->pos[i].x = -2.5+x;
-    part->pos[i].y = -2.5+y;
-    part->pos[i].z = -2.5+z;
-    part->pos[i].w = 0.0f;
-
-    //give some initial velocity 
-    part->vel[i].x =  70 * y;
-    part->vel[i].y = -70 * x;
-    part->vel[i].z = 0;
-    part->vel[i].w = 0;
-
-    //just make them red and full alpha
-    part->color[i].x = 1.0;
-    part->color[i].y = 1.0;
-    part->color[i].z = 1.0;
-    part->color[i].w = 1.0;
-  }
-  for(int i = num/2; i < num; i++)
-  {
-    part->mass[i] = 1.0f;
-
-    //distribute the particles in a random circle around z axis
-    float x = (i-num/2)*cos(i) / (float) (2*num);
-    float y = (i-num/2)*sin(i) / (float) (2*num);
-    float z = 0;
-    part->pos[i].x = 1.0+x;
-    part->pos[i].y = 1.0+y;
-    part->pos[i].z = 1.0+z;
-    part->pos[i].w = 0.0f;
-
-    //give some initial velocity 
-    part->vel[i].x =  70 * y - 5;
-    part->vel[i].y = -70 * x - 12;
-    part->vel[i].z = 0;
-    part->vel[i].w = 0;
-
-    //just make them red and full alpha
-    part->color[i].x = 1.0;
-    part->color[i].y = 1.0;
-    part->color[i].z = 0.0;
-    part->color[i].w = 1.0;
-  }
-  part->mass[0] = part->mass[num/2] = 1.0f;
+  
+  // Generate Galaxy data
+  vector color;
+  color.x = color.y = color.z = color.w = 1.0f;
+  vector center;
+  center.x = center.y = center.z = -2.7f;
+  genGalaxy(color, center, part, 0, num/2);
+  color.y = 0.0f;
+  center.x = center.y = center.z =  1.0f;
+  genGalaxy(color, center, part, num/2, num);
   return part;
 }
 
