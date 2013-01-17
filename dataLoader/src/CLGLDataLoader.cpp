@@ -56,27 +56,27 @@ body * loadData(int numPart)
     part->mass[i] = 1.0f;
 
     //distribute the particles in a random circle around z axis
-    float x = (i-num/2)*cos(i) / (float) num;
-    float y = (i-num/2)*sin(i) / (float) num;
+    float x = (i-num/2)*cos(i) / (float) (2*num);
+    float y = (i-num/2)*sin(i) / (float) (2*num);
     float z = 0;
-    part->pos[i].x = 2.5+x;
-    part->pos[i].y = 2.5+y;
-    part->pos[i].z = 2.5+z;
+    part->pos[i].x = 1.0+x;
+    part->pos[i].y = 1.0+y;
+    part->pos[i].z = 1.0+z;
     part->pos[i].w = 0.0f;
 
     //give some initial velocity 
-    part->vel[i].x =  70 * y;
-    part->vel[i].y = -70 * x;
+    part->vel[i].x =  70 * y - 5;
+    part->vel[i].y = -70 * x - 12;
     part->vel[i].z = 0;
     part->vel[i].w = 0;
 
     //just make them red and full alpha
     part->color[i].x = 1.0;
     part->color[i].y = 1.0;
-    part->color[i].z = 1.0;
+    part->color[i].z = 0.0;
     part->color[i].w = 1.0;
   }
-  part->mass[0] = part->mass[num/2] = 500.0f;
+  part->mass[0] = part->mass[num/2] = 1.0f;
   return part;
 }
 
