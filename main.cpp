@@ -57,10 +57,10 @@ int main(int argc, char * argv[])
     std::cout << "-----------------------------------" << std::endl;
     std::cout << "Loading Data" << std::endl;
     std::cout << "-----------------------------------" << std::endl;
-    if(console.isParticlesNumSet())
-      hostData = loadData(NUM_PART);
-    else
+    if(console.isDataFileSet())
       hostData = loadDataFromFile(console.dataFile, &NUM_PART);
+    else
+      hostData = loadData(NUM_PART);
    
     // Set the Number of Particles beeing simulated
     CLGLWindow::NumParticles = NUM_PART;

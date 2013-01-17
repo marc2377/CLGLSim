@@ -35,8 +35,8 @@ CLGLParser::CLGLParser(int argc, char * argv[])
   this->curKernel = 2;
   this->kernel = "Gravity_rk2";
   this->dataFile = "data.sim";
-  this->particlesNum = 0;
-  this->particlesNumSet = false;
+  this->particlesNum = 2000;
+  this->dataFileSet = false;
   this->rungeStep = 0.001;
 
   int i;
@@ -52,16 +52,16 @@ CLGLParser::CLGLParser(int argc, char * argv[])
         this->curKernel = 4;
     }
     // IF --num
-    else if(!strcmp(argv[i], "--num")){
+    else if(!strcmp(argv[i], "--num"))
       sscanf(argv[i+1], " %d", &(this->particlesNum));
-      this->particlesNumSet = true;
-    }
     // IF --precision
     else if(!strcmp(argv[i], "--precision"))
       sscanf(argv[i+1], " %f", &(this->rungeStep));
     // IF --data-file
-    else if(!strcmp(argv[i], "--data-file"))
+    else if(!strcmp(argv[i], "--data-file")){
       this->dataFile = argv[i+1];
+      this->dataFileSet = true;
+    }
     // IF --help
     else if(!strcmp(argv[i], "--help")){
       printHelp();
@@ -75,7 +75,7 @@ CLGLParser::CLGLParser(int argc, char * argv[])
   }
 }
 
-bool CLGLParser::isParticlesNumSet(void)
+bool CLGLParser::isDataFileSet(void)
 {
-  return this->particlesNumSet;
+  return this->dataFileSet;
 }

@@ -21,11 +21,11 @@ class CLGLParser
     std::string dataFile;
     int curKernel;
     int particlesNum;
-    bool particlesNumSet;
+    bool dataFileSet;
     float rungeStep;
 
     CLGLParser(int argc, char * argv[]);
-    bool isParticlesNumSet(void);
+    bool isDataFileSet(void);
 };
 
 #endif
