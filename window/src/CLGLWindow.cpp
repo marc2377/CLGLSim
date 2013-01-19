@@ -171,11 +171,12 @@ void CLGLWindowDrawInfo(void)
       CLGLWindowDrawString("Paused", 1, 33, CLGLWindow::stringColor, CLGLWindow::font);
     }
 
+    /*
     // Draw Simulaion time
     if(CLGLWindow::play == ON)
       simulationTime += CLGLSim::rungeStep;
     simTime << "Simulation Time: " << simulationTime;
-    CLGLWindowDrawString(simTime.str().c_str(), CLGLWindow::window_width - 245, 7, CLGLWindow::stringColor, CLGLWindow::font);
+    CLGLWindowDrawString(simTime.str().c_str(), glutGet(GLUT_WINDOW_WIDTH) - 245, 7, CLGLWindow::stringColor, CLGLWindow::font);*/
 
     // Draw Current Kernel in Use
     kernel << "Kernel: Gravity with Runge Kutta " << CLGLSim::curKernel << std::endl;
