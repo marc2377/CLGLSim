@@ -81,26 +81,36 @@ void CLGL::CLGLGetDevicesInfo(cl::Device dev, cl_device_info name, std::string *
   return;
 }
 
-/*
- * Print the information "name" from all devices available
- * in current platform
- */
-void CLGL::CLGLPrintDevicesInfo(cl_device_info name)
-{
-  std::string info;
 
-  try{
-    for(unsigned int i=0; i < this->device.size(); i++){
-      this->device[i].getInfo(name, &info);
-      std::cout << "Device " << i << ": " << info.c_str() << std::endl;
-    }
-  }
-  catch(cl::Error error){
-    std::cout << error.what() << " " << CLGLError::errToStr(error.err()) << std::endl;
-  }
+/*
+ * Macro for print devices info
+ */
+#define PRINTDEVICEINFO(INFO_NAME, STR_INFO_NAME, INFO_TYPE, SPACE) \
+  std::cout << "---------------------------------------------------------------" << std::endl; \
+  std::cout << STR_INFO_NAME << std::endl; \
+  try{ \
+    for(unsigned int i=0; i < this->device.size(); i++){ \
+      this->device[i].getInfo(INFO_NAME, &INFO_TYPE); \
+      std::cout << "Device " << i << ": "; \
+      for(unsigned int j=0; j < INFO_TYPE.size(); j++){ \
+        std::cout << INFO_TYPE[j] << SPACE; \
+      } \
+      std::cout << std::endl; \
+    } \
+  } \
+  catch(cl::Error error){ \
+    std::cout << error.what() << " " << CLGLError::errToStr(error.err()) << std::endl; \
+  } \
+ 
+/*
+ * Macro for print platform info
+ */
+#define PRINTPLATFORMINFO(INFO_NAME, STR_INFO_NAME) \
+  std::cout << "---------------------------------------------------------------" << std::endl; \
+  this->platform[0].getInfo(INFO_NAME, &info); \
+  std::cout << STR_INFO_NAME << std::endl; \
+  std::cout << info << std::endl;
   
-  return;
-}
 
 /*
  * Print All information about the current platform 
@@ -109,63 +119,43 @@ void CLGL::CLGLPrintDevicesInfo(cl_device_info name)
 void CLGL::CLGLPrintAllInfo(void)
 {
   std::string info;
+  std::vector<size_t> v;
+  std::vector<cl_uint> c;
 
   std::cout << std::endl << "---------------------------------------------------------------" << std::endl;
   std::cout << "PLATFORM INFO" << std::endl;
   std::cout << "---------------------------------------------------------------" << std::endl << std::endl;
   
-  std::cout << "---------------------------------------------------------------" << std::endl;
-  this->platform[0].getInfo(CL_PLATFORM_PROFILE, &info);
-  std::cout << "--->Platform Profile:    " << std::endl;
-  std::cout << info << std::endl;
-  std::cout << "---------------------------------------------------------------" << std::endl;
-  this->platform[0].getInfo(CL_PLATFORM_VERSION, &info);
-  std::cout << "--->Platform Version:    " << std::endl;
-  std::cout << info << std::endl;
-  std::cout << "---------------------------------------------------------------" << std::endl;
-  this->platform[0].getInfo(CL_PLATFORM_NAME, &info);
-  std::cout << "--->Platform Name:       " << std::endl;
-  std::cout << info << std::endl;
-  std::cout << "---------------------------------------------------------------" << std::endl;
-  this->platform[0].getInfo(CL_PLATFORM_VENDOR, &info);
-  std::cout << "--->Platform Vendor:     " << std::endl;
-  std::cout << info << std::endl;
-  std::cout << "---------------------------------------------------------------" << std::endl;
-  this->platform[0].getInfo(CL_PLATFORM_EXTENSIONS, &info);
-  std::cout << "--->Platform Extensions: " << std::endl;
-  std::cout << info << std::endl;
+
+  PRINTPLATFORMINFO(CL_PLATFORM_PROFILE, "--->Plaftorm Profile") 
+  PRINTPLATFORMINFO(CL_PLATFORM_VERSION, "--->Plaftorm Version") 
+  PRINTPLATFORMINFO(CL_PLATFORM_NAME, "--->Plaftorm Name") 
+  PRINTPLATFORMINFO(CL_PLATFORM_VENDOR, "--->Plaftorm Vendor") 
+  PRINTPLATFORMINFO(CL_PLATFORM_EXTENSIONS, "--->Plaftorm Extensions") 
   std::cout << "---------------------------------------------------------------" << std::endl;
 
   std::cout << std::endl << "---------------------------------------------------------------" << std::endl;
   std::cout << "DEVICES INFO  " << std::endl;
   std::cout << "---------------------------------------------------------------" << std::endl << std::endl;
   
+  PRINTDEVICEINFO(CL_DEVICE_NAME, "--->Devices Names:", info, "")
+  PRINTDEVICEINFO(CL_DEVICE_VENDOR, "--->Devices Vendors:", info, "")
+  PRINTDEVICEINFO(CL_DEVICE_PROFILE, "--->Devices Profiles:", info, "")
+  PRINTDEVICEINFO(CL_DEVICE_VERSION, "--->Devices Versions:", info, "")
+  PRINTDEVICEINFO(CL_DRIVER_VERSION, "--->Devices Versions:", info, "")
+  PRINTDEVICEINFO(CL_DEVICE_OPENCL_C_VERSION, "--->Devices OpenCL C Versions", info, "")
+  PRINTDEVICEINFO(CL_DEVICE_EXTENSIONS, "--->Devices Extensions", info, "")
+  PRINTDEVICEINFO(CL_DEVICE_MAX_WORK_ITEM_SIZES, "--->Devices Max Work Itens Sizes", v, " ")
+  PRINTDEVICEINFO(CL_DEVICE_MAX_WORK_GROUP_SIZE, "--->Devices Max Work Group Sizes", v, " ")
+  PRINTDEVICEINFO(CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS, "--->Devices Max Work Item Dimensions", c, " ")
+  PRINTDEVICEINFO(CL_DEVICE_GLOBAL_MEM_CACHE_SIZE, "--->Devices Global Mem Cache Size", v, " ")
+  PRINTDEVICEINFO(CL_DEVICE_GLOBAL_MEM_SIZE, "--->Devices Global Mem Size", v, " ")
+  PRINTDEVICEINFO(CL_DEVICE_MAX_CLOCK_FREQUENCY, "--->Devices Max Clock Frequency", c, " ")
+  PRINTDEVICEINFO(CL_DEVICE_MAX_COMPUTE_UNITS, "--->Devices Max Compute Units", c, " ")
+  PRINTDEVICEINFO(CL_DEVICE_MAX_MEM_ALLOC_SIZE, "--->Devices Max Mem Alloc Size", v, " ")
+  PRINTDEVICEINFO(CL_DEVICE_ADDRESS_BITS, "--->Devices Address Bits", c, " ")
   std::cout << "---------------------------------------------------------------" << std::endl;
-  std::cout << "--->Devices Names:                          " << std::endl;
-  CLGLPrintDevicesInfo(CL_DEVICE_NAME);
-  std::cout << "---------------------------------------------------------------" << std::endl;
-  std::cout << "--->Devices Vendors:                        " << std::endl;
-  CLGLPrintDevicesInfo(CL_DEVICE_VENDOR);
-  std::cout << "---------------------------------------------------------------" << std::endl;
-  std::cout << "--->Devices Profiles:                       " << std::endl;
-  CLGLPrintDevicesInfo(CL_DEVICE_PROFILE);
-  std::cout << "---------------------------------------------------------------" << std::endl;
-  std::cout << "--->Devices Versions:                       " << std::endl;
-  CLGLPrintDevicesInfo(CL_DEVICE_VERSION);
-  std::cout << "---------------------------------------------------------------" << std::endl;
-  std::cout << "--->Drivers Versions:                       " << std::endl;
-  CLGLPrintDevicesInfo(CL_DRIVER_VERSION);
-  std::cout << "---------------------------------------------------------------" << std::endl;
-  std::cout << "--->Devices OpenCL C Versions:              " << std::endl;
-  CLGLPrintDevicesInfo(CL_DEVICE_VERSION);
-  std::cout << "---------------------------------------------------------------" << std::endl;
-  std::cout << "--->Devices Extensions:                     " << std::endl;
-  CLGLPrintDevicesInfo(CL_DEVICE_VERSION);
-  std::cout << "---------------------------------------------------------------" << std::endl;
-  std::cout << "--->Devices Max Work Itens Sizes:           " << std::endl;
-  CLGLPrintDevicesInfo(CL_DEVICE_MAX_WORK_ITEM_SIZES);
-  std::cout << "---------------------------------------------------------------" << std::endl;
-
+ 
   std::cout << std::endl;
 }
 

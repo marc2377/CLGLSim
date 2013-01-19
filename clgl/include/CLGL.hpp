@@ -65,7 +65,6 @@ class CLGL
     
     //Get all the information from device
     void CLGLGetDevicesInfo(cl::Device dev, cl_device_info name, std::string * param);
-    void CLGLPrintDevicesInfo(cl_device_info name);
     void CLGLPrintAllInfo(void);
 
     //Build the source of the kernel
