@@ -5,8 +5,9 @@ CLGLSim has the folowing simulation implementated
 
 =============================================================================================================
 
-+ How to Use
+  + How to Use
 
+=============================================================================================================
 CLGLSim can receive comands through the terminal with these options
 
    ==================================================================== 
@@ -23,18 +24,18 @@ CLGLSim can receive comands through the terminal with these options
    -------------------------------------------------------------------- 
    |  --data-file : Set data file to load for simulation              |   
    ==================================================================== 
+   ==================================================================== 
 
 Example:
 
  For running CLGLSim with Gravity_rk4 kernel just run the program:
 
-  << ./CLGLSim --kernel Gravity_rk4 >>
+  < ./CLGLSim --kernel Gravity_rk4 >
 
 For running CLGLSim with more or less particles than 2000, 4000 for example, type the following:
 
-  << ./CLGLSim --num 4000 >>
+  < ./CLGLSim --num 4000 >
 
-=============================================================================================================
 
 + TODO
 
