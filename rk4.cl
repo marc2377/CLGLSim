@@ -24,13 +24,13 @@ __kernel void  Gravity_rk1(
   __private float4 aRes = {0.0, 0.0, 0.0, 0.0};
   __private float r;
 
-  __private float4 aux;
+  __private float4 dist;
 
   if(i < n){
     posCur = pos[i];
     velCur = vel[i];
     for(int j = 0; j < n; j++){
-      aux = pos[j] - posCur;
+      dist = pos[j] - posCur;
       r = length(dist);
       if(r <= MIN_DISTANCE || r >= MAX_DISTANCE) 
         continue;
@@ -78,8 +78,8 @@ __kernel void Gravity_rk2(
       r[1] = length(dist[1]);
       if(r[0] <= MIN_DISTANCE || r[0] >= MAX_DISTANCE)
         continue;
-      aRes[0] += G * mass[i] * dist[0] / ( r * r * r);
-      aRes[1] += G * mass[i] * dist[0] / ( r * r * r);
+      aRes[0] += G * mass[i] * dist[0] / ( r[0] * r[0] * r[0]);
+      aRes[1] += G * mass[i] * dist[1] / ( r[1] * r[1] * r[1]);
     }
     kPos[0] = 2.0f * velCur;
     kVel[0] = aRes[0];
