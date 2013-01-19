@@ -55,7 +55,7 @@ body * genData(int numPart)
   vector color;
   color.x = color.y = color.z = color.w = 1.0f;
   vector center;
-  center.x = center.y = center.z = -2.7f;
+  center.x = center.y = center.z = -1.0f;
   genGalaxy(color, center, part, 0, num/2);
   color.y = 0.0f;
   center.x = center.y = center.z =  1.0f;

@@ -31,10 +31,10 @@ __kernel void  Gravity_rk1(
     velCur = vel[i];
     for(int j = 0; j < n; j++){
       aux = pos[j] - posCur;
-      r = dot(aux, aux);
+      r = length(dist);
       if(r <= MIN_DISTANCE || r >= MAX_DISTANCE) 
         continue;
-      aRes += G * mass[j] * (aux) * rsqrt(r) / r;
+      aRes += G * mass[i] * dist / ( r * r * r);
     }
     vel[i] = velCur + aRes * rungeStep;
     pos[i] = posCur + velCur * rungeStep;
@@ -74,12 +74,12 @@ __kernel void Gravity_rk2(
     for(int i=0; i < n; i++){
       dist[0] = pos[i] - posCur;
       dist[1] = dist[0] + posAux;
-      r[0] = dot(dist[0], dist[0]);
-      r[1] = dot(dist[1], dist[1]);
+      r[0] = length(dist[0]);
+      r[1] = length(dist[1]);
       if(r[0] <= MIN_DISTANCE || r[0] >= MAX_DISTANCE)
         continue;
-      aRes[0] += G * mass[i] * dist[0] * rsqrt(r[0]) / r[0];
-      aRes[1] += G * mass[i] * dist[1] * rsqrt(r[1]) / r[1];
+      aRes[0] += G * mass[i] * dist[0] / ( r * r * r);
+      aRes[1] += G * mass[i] * dist[0] / ( r * r * r);
     }
     kPos[0] = 2.0f * velCur;
     kVel[0] = aRes[0];
@@ -129,11 +129,11 @@ __kernel void Gravity_rk4(
     // Get k_v[0] and k_r[0]
     for(int i = 0; i < n; i++){
       dist = pos[i] - posCur;
-      r = dot(dist, dist);
+      r = length(dist);
       // If it is good to iterate with the particle i
       if(r <= MIN_DISTANCE || r >= MAX_DISTANCE)
         continue;
-      aRes += G * mass[i] * dist * rsqrt(r) / r;
+      aRes += G * mass[i] * dist / ( r * r * r);
     }
     kVel[0] = aRes * rungeStep;
     kPos[0] = velCur * rungeStep;
@@ -144,11 +144,11 @@ __kernel void Gravity_rk4(
     aRes = reset;
     for(int i = 0; i < n; i++){
       dist = pos[i] - posCur;
-      r = dot(dist, dist);
+      r = length(dist);
       // If it is good to iterate with the particle i
       if(r <= MIN_DISTANCE || r >= MAX_DISTANCE)
         continue;
-      aRes += G * mass[i] * dist * rsqrt(r) / r;
+      aRes += G * mass[i] * dist / ( r * r * r);
     }
     kVel[1] = aRes * rungeStep;
     kPos[1] = velCur * rungeStep;
@@ -159,11 +159,11 @@ __kernel void Gravity_rk4(
     aRes = reset;
     for(int i = 0; i < n; i++){
       dist = pos[i] - posCur;
-      r = dot(dist, dist);
+      r = length(dist);
       // If it is good to iterate with the particle i
       if(r <= MIN_DISTANCE || r >= MAX_DISTANCE)
         continue;
-      aRes += G * mass[i] * dist * rsqrt(r) / r;
+      aRes += G * mass[i] * dist / ( r * r * r);
     }
     kVel[2] = aRes * rungeStep;
     kPos[2] = velCur * rungeStep;
@@ -174,11 +174,12 @@ __kernel void Gravity_rk4(
     aRes = reset;
     for(int i = 0; i < n; i++){
       dist = pos[i] - posCur;
-      r = dot(dist, dist);
+      // There is a misticism in this line, do not remove it
+      r = length(dist);
       // If it is good to iterate with the particle i
       if(r <= MIN_DISTANCE || r >= MAX_DISTANCE)
         continue;
-      aRes += G * mass[i] * dist * rsqrt(r) / r;
+      aRes += G * mass[i] * dist / ( r * r * r);
     }
     kVel[3] = aRes * rungeStep;
     kPos[3] = velCur * rungeStep;
