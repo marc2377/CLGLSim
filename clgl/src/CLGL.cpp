@@ -246,14 +246,12 @@ cl::Kernel* CLGL::CLGLBuildKernel(std::string kernelFunctionName)
 cl::Buffer* CLGL::CLGLLoadDataToDevice(cl_bool blocking, size_t bufferBytesSize, const void * hostMemory, cl_mem_flags flag)
 {
   cl::Buffer buff;
-  std::vector<cl::Buffer>::iterator pos;
 
   try{
     this->commandQueue.finish();
     buff = cl::Buffer(this->context, flag, bufferBytesSize);
     
-    pos = this->buffer->end();
-    pos = this->buffer->insert(pos, buff);
+    this->buffer->push_back(buff);
     
     this->commandQueue.enqueueWriteBuffer(buff, blocking, 0, bufferBytesSize, hostMemory);
   }
@@ -262,7 +260,7 @@ cl::Buffer* CLGL::CLGLLoadDataToDevice(cl_bool blocking, size_t bufferBytesSize,
     exit(1);
   }
 
-  return &(*pos);  
+  return &(this->buffer->back());  
 }
 
 /*

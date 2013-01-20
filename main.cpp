@@ -86,7 +86,7 @@ int main(int argc, char * argv[])
     clgl.CLGLLoadVBODataToDevice(hostData->pos.size() * sizeof(vector), &(hostData->pos[0]), CL_MEM_READ_WRITE);
     clgl.CLGLLoadVBODataToDevice(hostData->color.size() * sizeof(vector), &(hostData->color[0]), CL_MEM_READ_WRITE);
 
-    clgl.CLGLLoadDataToDevice(CL_TRUE, NUM_PART * sizeof(GLfloat), hostData->mass, CL_MEM_READ_WRITE);
+    clgl.CLGLLoadDataToDevice(CL_TRUE, NUM_PART * sizeof(GLfloat), hostData->mass, CL_MEM_READ_ONLY);
     clgl.CLGLLoadDataToDevice(CL_TRUE, hostData->vel.size() * sizeof(vector), &(hostData->vel[0]), CL_MEM_READ_WRITE);
 
     std::vector<cl::Buffer> buff = *clgl.CLGLGetBuffer();

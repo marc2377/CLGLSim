@@ -11,7 +11,7 @@
 #define MAX_DISTANCE 100000.00
 
 __kernel void  Gravity_rk1(
-    __global float * mass, 
+    __constant float * mass, 
     __global float4 * vel,
     __global float4 * pos, 
     float rungeStep, 
@@ -41,8 +41,9 @@ __kernel void  Gravity_rk1(
   }
 }
 
+// kernel Runge-Kutta 2
 __kernel void Gravity_rk2(
-    __global float * mass, 
+    __constant float * mass, 
     __global float4 * vel,
     __global float4 * pos, 
     float rungeStep, 
@@ -92,7 +93,7 @@ __kernel void Gravity_rk2(
 }
 
 __kernel void Gravity_rk4(
-    __global float * mass, 
+    __constant float * mass, 
     __global float4 * vel,
     __global float4 * pos,
     float rungeStep, 
