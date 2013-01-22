@@ -41,7 +41,7 @@ void CLGLWindows::CLGLCreateContext(void)
   }
   catch(cl::Error error){
     std::cout << error.what() << CLGLError::errToStr(error.err())->c_str() << std::endl;
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 }
 
@@ -57,7 +57,7 @@ void CLGLWindows::CLGLCreateCommandQueue(void)
   }
   catch(cl::Error error){
     std::cout << error.what() << ' ' << CLGLError::errToStr(error.err()) << std::endl;
-    exit(1);
+    exit(EXIT_FAILURE);
   }
   return;
 }

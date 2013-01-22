@@ -65,13 +65,13 @@ CLGLParser::CLGLParser(int argc, char * argv[])
     // IF --help
     else if(!strcmp(argv[i], "--help")){
       printHelp();
-      exit(0);
+      exit(EXIT_SUCCESS);
     }
   }
   // IF --help
   if(!strcmp(argv[i], "--help")){
     printHelp();
-    exit(0);
+    exit(EXIT_SUCCESS);
   }
 }
 

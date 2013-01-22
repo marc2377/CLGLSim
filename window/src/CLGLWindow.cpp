@@ -322,7 +322,7 @@ void CLGLWindowDestroy(void)
   if(CLGLWindow::glutWindowHandle)
     glutDestroyWindow(CLGLWindow::glutWindowHandle);
 
-  exit(0);
+  exit(EXIT_SUCCESS);
 }
 
 void CLGLWindowTimerCB(int ms)
