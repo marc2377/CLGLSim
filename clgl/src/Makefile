@@ -5,7 +5,7 @@ SRC=CLGLError.cpp CLGL.cpp CLGLLinux.cpp
 OBJ=$(SRC:.cpp=.o)
 
 CL_PATH_ATI=/opt/AMDAPP/include/
-CL_PATH_NVIDIA=$(HOME)/NVIDIA_GPU_Computing_SDK/OpenCL/common/inc
+CL_PATH_NVIDIA=/usr/include
 
 INCLUDE_PATH=-I../include -I../../window/include -I../../sim/include
 
