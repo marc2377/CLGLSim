@@ -24,12 +24,12 @@ int main(int argc, char * argv[])
   float rungeStep;
   int NUM_PART;
   std::string windowTitle = "CLGLSim 1.0";
-  std::string kernelFileName = "rk4.cl";
   CLGLParser console = CLGLParser(argc, argv);
 
   CLGLSim::curKernel = console.curKernel;
   NUM_PART = console.particlesNum;
   rungeStep = console.rungeStep;
+  std::string kernelFileName = console.kernelFile;
 
   std::cout << "-----------------------------------" << std::endl;
   std::cout << "Using " << console.kernel << " Kernel !" << std::endl;

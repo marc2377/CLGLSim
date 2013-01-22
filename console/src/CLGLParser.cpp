@@ -23,6 +23,8 @@ void printHelp(void)
   std::cout << "--------------------------------------------------------------------" << std::endl;
   std::cout << "|  --data-file : Set data file to load for simulation              |" << std::endl; 
   std::cout << "--------------------------------------------------------------------" << std::endl;
+  std::cout << "|  --kernel-file : Set kernel file to load for simulation          |" << std::endl; 
+  std::cout << "--------------------------------------------------------------------" << std::endl;
   std::cout << "|  --help : Show this help message                                 |" << std::endl; 
   std::cout << "====================================================================" << std::endl;
 }
@@ -33,6 +35,7 @@ CLGLParser::CLGLParser(int argc, char * argv[])
   // Default configurations //
   // ---------------------- //
   this->curKernel = 4;
+  this->kernelFile = "rk4.cl";
   this->kernel = "Gravity_rk4";
   this->dataFile = "data.sim";
   this->particlesNum = 2000;
@@ -61,6 +64,10 @@ CLGLParser::CLGLParser(int argc, char * argv[])
     else if(!strcmp(argv[i], "--data-file")){
       this->dataFile = argv[i+1];
       this->dataFileSet = true;
+    }
+    // IF --kernel-file
+    else if(!strcmp(argv[i], "--kernel-file")){
+      this->kernelFile = argv[i+1];
     }
     // IF --help
     else if(!strcmp(argv[i], "--help")){

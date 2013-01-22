@@ -174,7 +174,7 @@ void CLGL::CLGLBuildProgramSource(std::string programName, std::string compilerF
   
   // Check if file is valid
   if(!programFile){
-    std::cout << "File: " << programName.c_str() << " is not valid as data file!" << std::endl;
+    std::cout << "File: " << programName.c_str() << " is not valid as kernel file!" << std::endl;
     std::cout << "CLGLSim will be closed" << std::endl;
     exit(1);
   }   

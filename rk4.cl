@@ -92,6 +92,7 @@ __kernel void Gravity_rk2(
   }
 }
 
+// kernel for Runge-Kutta 4 method
 __kernel void Gravity_rk4(
     __constant float * mass, 
     __global float4 * vel,
