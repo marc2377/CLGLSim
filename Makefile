@@ -5,7 +5,7 @@ C_FLAGS=-g -Wall -O0
 OBJ=clgl/src/*.o window/src/*.o sim/src/*.o console/src/*.o dataLoader/src/*.o
 
 LIB_PATH_ATI=/opt/AMDAPP/lib/x86_64
-LIB_PATH_NVIDIA=$(HOME)/NVIDIA_GPU_Computing_SDK/OpenCL/common/lib
+LIB_PATH_NVIDIA=/usr/include
 
 LIBS=-lOpenCL -lGL -lGLU -lglut -lGLEW
 INCLUDE_PATH=-Iclgl/include/ -Iwindow/include -Isim/include -Iconsole/include -IdataLoader/include

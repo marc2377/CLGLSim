@@ -153,7 +153,6 @@ void CLGLWindowDrawInfo(void)
     std::stringstream simTime(std::stringstream::in | std::stringstream::out);
     static std::stringstream pause(std::stringstream::in | std::stringstream::out);
     static std::stringstream kernel(std::stringstream::in | std::stringstream::out);
-    static float simulationTime = 0;
 
     pause.seekp(std::ios::beg);
     kernel.seekp(std::ios::beg);
@@ -170,13 +169,6 @@ void CLGLWindowDrawInfo(void)
     else{
       CLGLWindowDrawString("Paused", 1, 33, CLGLWindow::stringColor, CLGLWindow::font);
     }
-
-    /*
-    // Draw Simulaion time
-    if(CLGLWindow::play == ON)
-      simulationTime += CLGLSim::rungeStep;
-    simTime << "Simulation Time: " << simulationTime;
-    CLGLWindowDrawString(simTime.str().c_str(), glutGet(GLUT_WINDOW_WIDTH) - 245, 7, CLGLWindow::stringColor, CLGLWindow::font);*/
 
     // Draw Current Kernel in Use
     kernel << "Kernel: Gravity with Runge Kutta " << CLGLSim::curKernel << std::endl;
@@ -330,7 +322,7 @@ void CLGLWindowDestroy(void)
   if(CLGLWindow::glutWindowHandle)
     glutDestroyWindow(CLGLWindow::glutWindowHandle);
 
-  exit(0);
+  exit(EXIT_SUCCESS);
 }
 
 void CLGLWindowTimerCB(int ms)

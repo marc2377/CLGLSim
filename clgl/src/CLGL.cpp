@@ -62,7 +62,7 @@ void CLGL::CLGLStart(int argc, char * argv[], std::string windowName, int window
   }
   catch(cl::Error error){
     std::cout << error.what() << ' ' << CLGLError::errToStr(error.err())->c_str() << std::endl;
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 }
 
@@ -176,7 +176,7 @@ void CLGL::CLGLBuildProgramSource(std::string programName, std::string compilerF
   if(!programFile){
     std::cout << "File: " << programName.c_str() << " is not valid as kernel file!" << std::endl;
     std::cout << "CLGLSim will be closed" << std::endl;
-    exit(1);
+    exit(EXIT_FAILURE);
   }   
 
   // Get the size of the file
@@ -204,7 +204,7 @@ void CLGL::CLGLBuildProgramSource(std::string programName, std::string compilerF
       this->program.getBuildInfo(this->device[0], CL_PROGRAM_BUILD_LOG, &log);
       std::cout << log.data() << std::endl;
     }
-    exit(1);
+    exit(EXIT_FAILURE);
   }
   
   return;
@@ -234,7 +234,7 @@ cl::Kernel* CLGL::CLGLBuildKernel(std::string kernelFunctionName)
   }
   catch(cl::Error error){
     std::cout << error.what() << ' ' << CLGLError::errToStr(error.err())->c_str() << std::endl;
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 
   return &(*pos);
@@ -257,7 +257,7 @@ cl::Buffer* CLGL::CLGLLoadDataToDevice(cl_bool blocking, size_t bufferBytesSize,
   }
   catch(cl::Error error){
     std::cout << error.what() << ' ' << CLGLError::errToStr(error.err())->c_str() << std::endl;
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 
   return &(this->buffer->back());  
@@ -281,7 +281,7 @@ cl::Memory* CLGL::CLGLLoadVBODataToDevice(size_t bufferBytesSize, void * hostMem
     glDeleteBuffers(1, &id);
     id = 0;
     std::cout << "[createVBO()] Data size is mismatch with input array\n";
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 
   //Adds the vbo id
@@ -297,7 +297,7 @@ cl::Memory* CLGL::CLGLLoadVBODataToDevice(size_t bufferBytesSize, void * hostMem
   }
   catch(cl::Error error){
     std::cout << error.what() << ' ' << CLGLError::errToStr(error.err())->c_str() << std::endl;
-    exit(1);
+    exit(EXIT_FAILURE);
   }
   return &(this->bufferGL->back());
 }
@@ -349,7 +349,7 @@ void CLGL::CLGLRunKernel(std::vector<cl::Memory>* bufferGL, cl::Kernel kernel, i
   }
   catch(cl::Error error){
     std::cout << error.what() << ' ' << CLGLError::errToStr(error.err())->c_str() << std::endl;
-    exit(1);
+    exit(EXIT_FAILURE);
   }
   return;
 }

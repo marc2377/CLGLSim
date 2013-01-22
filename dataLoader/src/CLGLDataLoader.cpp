@@ -83,7 +83,7 @@ body * loadDataFromFile(std::string dataFileName, int * numPart)
   if(!file){
     std::cout << "File: " << dataFileName.c_str() << " is not valid as data file!" << std::endl;
     std::cout << "CLGLSim will be closed" << std::endl;
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 
   // Get the number of particles 
