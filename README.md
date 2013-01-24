@@ -25,6 +25,9 @@ CLGLSim can receive comands through the terminal with these options
     
     --data-file : Set data file to load for simulation                 
 
+    --kernel-file : Set kernel file to load. If this is selected
+      the option --kernel must be set too.
+
 Example:
 
  For running CLGLSim with Gravity_rk4 kernel just run the program:
