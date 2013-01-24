@@ -1,0 +1,39 @@
+r = 0.6
+m = 100.0
+px = 0.5
+py = 0.5
+pz = 0.0
+vx = -0.5
+vy = 0.5
+vz = 0.0
+red = 1.0
+green = 1.0
+blue = 1.0
+alpha = 1.0
+
+r = 0.3
+m = 100.0
+px = -0.0
+py = -0.0
+pz = 0.0
+vx = 0.0
+vy = -0.0
+vz = 0.0
+red   = 1.0
+green = 1.0
+blue  = 1.0
+alpha = 1.0
+
+r = 0.3
+m = 100.0
+px = -0.5
+py = -0.5
+pz = 0.0
+vx = 0.5
+vy = -0.5
+vz = 0.0
+red   = 1.0
+green = 1.0
+blue  = 1.0
+alpha = 1.0
+

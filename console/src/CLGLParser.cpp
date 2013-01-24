@@ -35,7 +35,7 @@ CLGLParser::CLGLParser(int argc, char * argv[])
   // Default configurations //
   // ---------------------- //
   this->curKernel = 4;
-  this->kernelFile = "rk4.cl";
+  this->kernelFile = "kernels/rk4.cl";
   this->kernel = "Gravity_rk4";
   this->dataFile = "data.sim";
   this->particlesNum = 2000;

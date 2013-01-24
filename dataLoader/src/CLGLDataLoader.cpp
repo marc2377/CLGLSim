@@ -27,8 +27,8 @@ void genGalaxy(vector color, vector center, body * part, int begin, int end)
     part->pos[i].w = 0.0f;
 
     //give some initial velocity 
-    part->vel[i].x = -80 * y;
-    part->vel[i].y =  80 * x;
+    part->vel[i].x = -6 * y;
+    part->vel[i].y =  6 * x;
     part->vel[i].z = 0;
     part->vel[i].w = 0;
 
@@ -57,7 +57,6 @@ body * genData(int numPart)
   vector center;
   center.x = center.y = center.z = -1.0f;
   genGalaxy(color, center, part, num/2, num);
-  color.y = 0.0f;
   center.x = center.y = center.z =  1.0f;
   genGalaxy(color, center, part, 0, num/2);
   return part;
