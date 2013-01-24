@@ -61,7 +61,7 @@ CLGLWindow::CLGLWindow()
   CLGLWindowCreateMenus(); //Creates Menus
 
   glShadeModel(GL_SMOOTH);
-  glClearColor(0.0, 0.0, 0.0, 1.0);
+  glClearColor(0.0, 0.0, 0.06, 1.0);
   glDisable(GL_DEPTH_TEST);
 
   // viewport
