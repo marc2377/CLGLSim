@@ -74,10 +74,11 @@ class CLGL
     //Build one function in the kernel source code
     cl::Kernel* CLGLBuildKernel(std::string kernelFunctionName);
     
-    //Transfer between host and device
+    //Transfer data between host and device
     cl::Memory* CLGLLoadVBODataToDevice(size_t bufferBytesSize, void * hostMemory, cl_mem_flags flag);
     cl::Buffer* CLGLLoadDataToDevice(cl_bool blocking, size_t bufferBytesSize,const void * hostMemory, cl_mem_flags flag);
-    void CLGLGetDataFromDevice(cl::Buffer *buffer,cl_bool blocking, int bytes_size, void *data);
+    void CLGLGetDataFromDevice(cl::Buffer * buffer,cl_bool blocking, int bytes_size, void *data);
+    void CLGLModifyBufferOfDevice(cl::Buffer * buffer, cl_bool blocking, size_t offset, size_t bytes_size, void * data);
 
     //Set the kernel arguments for data on device
     void CLGLSetArg(int argNum, cl::Memory buffer, cl::Kernel kernel);

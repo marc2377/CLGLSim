@@ -167,7 +167,6 @@ void CLGL::CLGLBuildProgramSource(std::string programName, std::string compilerF
   int begin = 0, end = 0, lenth;
   char * buffer = NULL;
   std::fstream programFile;
-  std::string programSource;
 
   // Opens the file  
   programFile.open(programName.c_str());
@@ -189,11 +188,10 @@ void CLGL::CLGLBuildProgramSource(std::string programName, std::string compilerF
   
   // Stores the content of the file in buffer
   programFile.read(buffer, lenth);
-  programSource = buffer;
   
   try{
     // Builds the Program Source
-    cl::Program::Sources source(1, std::make_pair(programSource.c_str(), programSource.size()));
+    cl::Program::Sources source(1, std::make_pair(buffer, lenth));
     this->program = cl::Program(this->context, source);
     this->program.build(this->device, compilerFlags.data());
   }
@@ -253,7 +251,8 @@ cl::Buffer* CLGL::CLGLLoadDataToDevice(cl_bool blocking, size_t bufferBytesSize,
     
     this->buffer->push_back(buff);
     
-    this->commandQueue.enqueueWriteBuffer(buff, blocking, 0, bufferBytesSize, hostMemory);
+    if(hostMemory != NULL)
+      this->commandQueue.enqueueWriteBuffer(buff, blocking, 0, bufferBytesSize, hostMemory);
   }
   catch(cl::Error error){
     std::cout << error.what() << ' ' << CLGLError::errToStr(error.err())->c_str() << std::endl;
@@ -379,15 +378,42 @@ void CLGL::CLGLRunKernel(cl::Kernel kernel, int numThreads)
  */
 void CLGL::CLGLGetDataFromDevice(cl::Buffer *buffer, cl_bool blocking, int bytes_size, void * data)
 {
-  // Wait until OpenGL finish it's tasks
-  glFinish();
-  // Wait until OpenCL finish it's tasks
-  this->commandQueue.finish();
-  // Read the data from the buffer
-  this->commandQueue.enqueueReadBuffer(*buffer, blocking, 0, bytes_size, data);
-  
+  try{
+    // Wait until OpenGL finish it's tasks
+    glFinish();
+    // Wait until OpenCL finish it's tasks
+    this->commandQueue.finish();
+    // Read the data from the buffer
+    this->commandQueue.enqueueReadBuffer(*buffer, blocking, 0, bytes_size, data);
+  }
+  catch(cl::Error error){
+    std::cout << error.what() << ' ' << CLGLError::errToStr(error.err())->c_str() << std::endl;
+    exit(EXIT_FAILURE);
+  }
   return;
 }
+
+/*
+ * Modify the data of buffer
+ * Caution: it takes time to return from function and it just modifies 
+ * data in OpenCL objects, not in OpenGL objects
+ */
+void CLGL::CLGLModifyBufferOfDevice(cl::Buffer * buffer, cl_bool blocking, size_t offset, size_t bytes_size, void * data)
+{
+  try{
+    // Finish tasks
+    this->commandQueue.finish();
+
+    // Write to buffer
+    this->commandQueue.enqueueWriteBuffer(*buffer, blocking, offset, bytes_size, data);
+  }
+  catch(cl::Error error){
+    std::cout << error.what() << ' ' << CLGLError::errToStr(error.err())->c_str() << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  return;
+}
+
 
 /*
  * Get OpenGL VBO vector

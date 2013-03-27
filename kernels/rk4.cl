@@ -1,7 +1,7 @@
 //------------------------------------//
 //                                    //
 //  Author : Tiago Lobato Gimenes     //
-//  email : tlgimenes@gmail.com       //
+//  email : tlgimenes at gmail.com    //
 //                                    //
 //------------------------------------//
 

@@ -18,8 +18,8 @@ void genGalaxy(vector color, vector center, body * part, int begin, int end)
     part->mass[i] = 1.0f;
 
     //distribute the particles in a random circle around z axis
-    float x = (i-begin)*cos((i-begin)) / (float) (2 * end-begin);
-    float y = (i-begin)*sin((i-begin)) / (float) (2 * end-begin);
+    float x = (i-begin)*sin((i-begin)) / (float) (2 * end-begin);
+    float y = (i-begin)*cos((i-begin)) / (float) (2 * end-begin);
     float z = 0;
     part->pos[i].x = x + center.x;
     part->pos[i].y = y + center.y;

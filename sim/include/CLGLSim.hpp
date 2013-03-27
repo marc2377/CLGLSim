@@ -34,13 +34,19 @@ class CLGLSim
     
     //Number of particles beeing simulated
     static int ParticlesNum;
+    
     //Runge Step used
     static float rungeStep;
+    
     //Vbo index array
     static std::vector<int> *vbo;
+    
     //Vbo buffer array
     static std::vector<cl::Memory> bufferGL;
     
+    //Buffer of device
+    static std::vector<cl::Buffer>* buffer;
+
     // ------- //
     // Methods //
     // ------- //
