@@ -196,6 +196,7 @@ void CLGL::CLGLBuildProgramSource(std::string programName, std::string compilerF
     this->program.build(this->device, compilerFlags.data());
   }
   catch(cl::Error error){
+    std::cout << "Error while compiling the file : " << programName.c_str() << std::endl;
     std::cout << error.what() << ' ' << CLGLError::errToStr(error.err())->c_str() << std::endl;
     if(!strcmp(error.what(), "clBuildProgram")){ // If Compilation Errors print then
       cl::STRING_CLASS log;
@@ -414,6 +415,18 @@ void CLGL::CLGLModifyBufferOfDevice(cl::Buffer * buffer, cl_bool blocking, size_
   return;
 }
 
+/*
+ * Release a Memoy Object
+ */
+void CLGL::CLGLReleaseMemory(cl::Memory * mem){
+  try{
+    mem->~Memory();
+  }
+  catch(cl::Error error){
+    std::cout << error.what() << ' ' << CLGLError::errToStr(error.err())->c_str() << std::endl;
+    exit(EXIT_FAILURE);
+  }
+}
 
 /*
  * Get OpenGL VBO vector

@@ -9,6 +9,7 @@
 #define CLGLSIM_HPP
 
 #include "CLGL.hpp"
+#include "Grid.hpp"
 
 #include <vector>
 #include <stdlib.h>
@@ -31,6 +32,9 @@ class CLGLSim
 
     //CLGL object
     static CLGL * clgl;
+
+    //Data Struct used in simulation
+    static Grid * dataStruct;
     
     //Number of particles beeing simulated
     static int ParticlesNum;

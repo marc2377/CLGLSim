@@ -79,6 +79,7 @@ class CLGL
     cl::Buffer* CLGLLoadDataToDevice(cl_bool blocking, size_t bufferBytesSize,const void * hostMemory, cl_mem_flags flag);
     void CLGLGetDataFromDevice(cl::Buffer * buffer,cl_bool blocking, int bytes_size, void *data);
     void CLGLModifyBufferOfDevice(cl::Buffer * buffer, cl_bool blocking, size_t offset, size_t bytes_size, void * data);
+    void CLGLReleaseMemory(cl::Memory * mem);
 
     //Set the kernel arguments for data on device
     void CLGLSetArg(int argNum, cl::Memory buffer, cl::Kernel kernel);

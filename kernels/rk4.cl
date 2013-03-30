@@ -5,12 +5,14 @@
 //                                    //
 //------------------------------------//
 
+#include "grid.h"
+
 #define G 0.004302
 /*#define G 1*/
 #define MIN_DISTANCE 0.02
 #define MAX_DISTANCE 100000.00
 
-__kernel void  Gravity_rk1(
+/*__kernel void  Gravity_rk1(
     __constant float * mass, 
     __global float4 * vel,
     __global float4 * pos, 
@@ -35,6 +37,55 @@ __kernel void  Gravity_rk1(
       if(r <= MIN_DISTANCE || r >= MAX_DISTANCE) 
         continue;
       aRes += G * mass[j] * (aux) * rsqrt(r) / r;
+    }
+    vel[i] = velCur + aRes * rungeStep;
+    pos[i] = posCur + velCur * rungeStep;
+  }
+}*/
+
+__kernel void  Gravity_rk1(
+    __constant float * mass, 
+    __global float4 * vel,
+    __global float4 * pos,
+    __global int * gridIndex,
+    __global int * nGridCubes,
+    __global int * nPartPerIndex,
+    __global int4 * gridCoord,
+    float rungeStep, 
+    int n)
+{
+  __private unsigned int i = get_global_id(0);
+
+  // Private variables improves the kernel speed
+  __private float4 posCur, velCur;
+  __private float4 aRes = {0.0, 0.0, 0.0, 0.0};
+  __private float r;
+  // Private variables for the grid
+  __private int4 gCoord;
+  __private int2 index;
+  __private int gridCubes  = *nGridCubes / 2;
+  __private int gridCubes2 = gridCubes  * gridCubes;
+  __private int gridCubes3 = gridCubes2 * gridCubes;
+
+  __private float4 aux;
+
+  if(i < n){
+    gCoord = gridCoord[i];
+    posCur = pos[i];
+    velCur = vel[i];
+    for(int j = gCoord.x-1; j < gCoord.x+1; j++){
+      for(int k = gCoord.y-1; k < gCoord.y+1; k++){
+        for(int l = gCoord.z-1; l < gCoord.z+1; l++){
+          index = getNeighbors(gridIndex, nPartPerIndex, j * gridCubes2 + k * gridCubes + l + gridCubes3);
+          for(int in = index.x; in < index.y; in++){
+            aux = pos[j] - posCur;
+            r = dot(aux, aux);
+            if(r <= MIN_DISTANCE || r >= MAX_DISTANCE) 
+              continue;
+            aRes += G * mass[j] * (aux) * rsqrt(r) / r;
+          }
+        }
+      }
     }
     vel[i] = velCur + aRes * rungeStep;
     pos[i] = posCur + velCur * rungeStep;

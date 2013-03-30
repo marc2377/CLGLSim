@@ -2,13 +2,13 @@ CC=g++
 SRC=$(wildcard *.cpp)
 C_FLAGS=-g -Wall -O0
 
-OBJ=clgl/src/*.o window/src/*.o sim/src/*.o console/src/*.o dataLoader/src/*.o
+OBJ=clgl/src/*.o window/src/*.o sim/src/*.o console/src/*.o dataLoader/src/*.o dataStruct/src/*.o
 
 LIB_PATH_ATI=/opt/AMDAPP/lib/x86_64
 LIB_PATH_NVIDIA=/usr/include
 
 LIBS=-lOpenCL -lGL -lGLU -lglut -lGLEW
-INCLUDE_PATH=-Iclgl/include/ -Iwindow/include -Isim/include -Iconsole/include -IdataLoader/include
+INCLUDE_PATH=-Iclgl/include/ -Iwindow/include -Isim/include -Iconsole/include -IdataLoader/include -IdataStruct/include
 
 CL_PATH_ATI=/opt/AMDAPP/include/
 CL_PATH_NVIDIA=$(HOME)/NVIDIA_GPU_Computing_SDK/OpenCL/common/inc
@@ -18,6 +18,7 @@ OUTPUT=CLGLSim
 all:
 	cd clgl; make
 	cd window; make
+	cd dataStruct; make
 	cd sim; make
 	cd console; make
 	cd dataLoader; make
@@ -39,6 +40,7 @@ clean:
 	cd sim; make clean
 	cd console; make clean
 	cd dataLoader; make clean
+	cd dataStruct; make clean
 	rm $(OUTPUT)
 
 run: all

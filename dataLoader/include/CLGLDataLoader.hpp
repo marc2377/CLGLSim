@@ -5,6 +5,11 @@
 //                                //
 //--------------------------------//
 
+//#include "CLGLSim.hpp"
+
+#ifndef CLGLDATALOADER_HPP
+#define CLGLDATALOADER_HPP
+
 #include <fstream>
 #include <vector>
 #include <iostream>
@@ -32,3 +37,5 @@ typedef struct t_body
 body * genData(int numPart);
 
 body * loadDataFromFile(std::string dataFileName, int * numPart);
+
+#endif
