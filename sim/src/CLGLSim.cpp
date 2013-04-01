@@ -25,7 +25,7 @@ void printParameters(void)
 {
   int nGridCubesVar, sideSizeVar;
   int * gridIndexVar = new int[CLGLSim::ParticlesNum];
-  vector * gridCoordVar = new vector[CLGLSim::ParticlesNum];
+  int4 * gridCoordVar = new int4[CLGLSim::ParticlesNum];
   int * nPartPerIndexVar;
   bool mVF, rTF;
 
@@ -50,7 +50,7 @@ void printParameters(void)
     std::cout << gridIndexVar[i] << " | ";
   std::cout << std::endl;
   // gridCoord
-  CLGLSim::clgl->CLGLGetDataFromDevice(&(*CLGLSim::buffer)[CLGLSim::dataStruct->getBuffBegin() + gridCoord], CL_TRUE, sizeof(vector) * CLGLSim::ParticlesNum, gridCoordVar);
+  CLGLSim::clgl->CLGLGetDataFromDevice(&(*CLGLSim::buffer)[CLGLSim::dataStruct->getBuffBegin() + gridCoord], CL_TRUE, sizeof(int4) * CLGLSim::ParticlesNum, gridCoordVar);
   std::cout << "gridCoord: ";
   for(int i=0; i < CLGLSim::ParticlesNum; i++)
     std::cout << "(" << gridCoordVar[i].x << "," << gridCoordVar[i].y << "," << gridCoordVar[i].z << "," << gridCoordVar[i].w << ") | ";
@@ -73,10 +73,10 @@ void CLGLSim::CLGLRunKernel()
 {
   bool isTreeIncorrect = false;
 
-  printParameters();
-
   // Runs the kernel
   CLGLSim::clgl->CLGLRunKernel((*CLGLSim::rkx)[0], CLGLSim::ParticlesNum);
+
+  //printParameters();
 
   // Get the isTreeIncorrect from device
   CLGLSim::clgl->CLGLGetDataFromDevice(&(*CLGLSim::buffer)[CLGLSim::dataStruct->getBuffBegin() + rebuildTreeFlag], CL_TRUE, sizeof(bool), &isTreeIncorrect);

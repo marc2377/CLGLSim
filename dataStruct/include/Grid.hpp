@@ -11,6 +11,11 @@
 #include "CLGL.hpp"
 #include "CLGLDataLoader.hpp"
 
+typedef struct t_int4
+{
+  int x,y,z,w;
+} int4;
+
 enum kernelGrid
 {
   // Name of each grid's kernel

@@ -69,9 +69,8 @@ __kernel void setGridIndex(
     int n)
 {
   __private unsigned int i = get_global_id(0);
-  __private int gridCubes = *nGridCubes - 2;
+  __private int gridCubes = *nGridCubes;
   __private int gridCubes2 = gridCubes * gridCubes;
-  __private int gridCubes3 = gridCubes2 * gridCubes;
   __private int4 aux;
 
   if(i < n){

@@ -66,7 +66,7 @@ __kernel void  Gravity_rk1(
   __private int4 gCoord;
   __private int4 newCoord;
   __private int2 index;
-  __private int gridCubes  = *nGridCubes - 2;
+  __private int gridCubes  = *nGridCubes;
   __private int gridCubes2 = gridCubes  * gridCubes;
   __private int shift = gridCubes / 2;
 
@@ -81,11 +81,11 @@ __kernel void  Gravity_rk1(
         for(int l = gCoord.z-1; l <= gCoord.z+1; l++){
           index = getNeighbors(gridIndex, nPartPerIndex, (j+shift) * gridCubes2 + (k+shift) * gridCubes + (l+shift));
           for(int in = index.x; in < index.y; in++){
-            aux = pos[in] - posCur;
+            aux = pos[gridCoord[in].w] - posCur;
             r = dot(aux, aux);
             if(r <= MIN_DISTANCE || r >= MAX_DISTANCE) 
               continue;
-            aRes += G * mass[in] * (aux) * rsqrt(r) / r;
+            aRes += G * mass[gridCoord[in].w] * (aux) * rsqrt(r) / r;
           }
         }
       }
@@ -95,8 +95,9 @@ __kernel void  Gravity_rk1(
     pos[gCoord.w] = posCur + velCur * rungeStep;
     
     newCoord = convert_int4_rtz(posCur) / *sideSize;
-    if(newCoord.x != gCoord.x || newCoord.y != gCoord.y || newCoord.z != gCoord.z);
+    if(newCoord.x != gCoord.x || newCoord.y != gCoord.y || newCoord.z != gCoord.z){
       *rebuildTreeFlag = true;
+    }
   }
 }
 

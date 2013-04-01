@@ -37,7 +37,7 @@ inline int2 getNeighbors(
   for(i=0; i < searchIndex; i++){
     index.x += nPartPerIndex[i];
   }
-  index.y = nPartPerIndex[i];
+  index.y = index.x + nPartPerIndex[i];
 
   return index;
 }

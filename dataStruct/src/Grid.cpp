@@ -11,7 +11,7 @@ void Grid::printParameters(void)
 {
   int nGridCubesVar, sideSizeVar;
   int * gridIndexVar = new int[this->NUM_PART];
-  vector * gridCoordVar = new vector[this->NUM_PART];
+  int4 * gridCoordVar = new int4[this->NUM_PART];
   int * nPartPerIndexVar;
   bool mVF, rTF;
 
@@ -36,7 +36,7 @@ void Grid::printParameters(void)
     std::cout << gridIndexVar[i] << " | ";
   std::cout << std::endl;
   // gridCoord
-  this->clgl->CLGLGetDataFromDevice(&(*this->buff)[this->getBuffBegin() + gridCoord], CL_TRUE, sizeof(vector) * this->NUM_PART, gridCoordVar);
+  this->clgl->CLGLGetDataFromDevice(&(*this->buff)[this->getBuffBegin() + gridCoord], CL_TRUE, sizeof(int4) * this->NUM_PART, gridCoordVar);
   std::cout << "gridCoord: ";
   for(int i=0; i < this->NUM_PART; i++)
     std::cout << "(" << gridCoordVar[i].x << "," << gridCoordVar[i].y << "," << gridCoordVar[i].z << "," << gridCoordVar[i].w << ") | ";
@@ -96,7 +96,6 @@ Grid::Grid(CLGL * clgl, cl::Memory * pos, int NUM_PART)
 void Grid::refreshGrid(void)
 {
   try{
-    std::cout << "Refresh kernel" << std::endl;
     /*
      * Gets the number of grid cubes to be 
      * used in the simulation
@@ -115,7 +114,7 @@ void Grid::refreshGrid(void)
       exit(EXIT_FAILURE);
     }
     // Deletes the last nPartPerIndex vector
-    this->clgl->CLGLReleaseMemory(&(this->buff->back()));
+    //this->clgl->CLGLReleaseMemory(&(this->buff->back()));
     this->buff->pop_back();
     // Loads a vector of gridCubes size
     nGridCubesDevice = nGridCubesDevice * nGridCubesDevice * nGridCubesDevice; // nGridCubesDevice ^ 3
@@ -124,8 +123,9 @@ void Grid::refreshGrid(void)
     memset(zero, 0, sizeof(int) * nGridCubesDevice);
     // Loads to device the vector of zeros
     this->clgl->CLGLLoadDataToDevice(CL_TRUE, sizeof(int) * nGridCubesDevice, zero, CL_MEM_READ_WRITE); //nPartPerIndex
-    // Sets this vector as the argument 4 of setGridIndex
+    // Sets nPartPerIndex as the argument for the kernels
     this->clgl->CLGLSetArg(4, (*this->buff)[this->buffBegin + nPartPerIndex], (*this->kernel)[this->kerBegin + setGridIndex]);
+    this->clgl->CLGLSetArg(6, (*this->buff)[this->buffBegin + nPartPerIndex], (*this->kernel)[0]);
     // Runs the kernel setGridIndex
     this->clgl->CLGLRunKernel((*this->kernel)[this->kerBegin + setGridIndex], this->NUM_PART);
     
@@ -186,7 +186,6 @@ void Grid::startGrid(void)
      */
     this->clgl->CLGLRunKernel((*this->kernel)[this->kerBegin + getNGridCubes], this->NUM_PART);
 
-    this->printParameters();
     /*
      * Set the corresponding index of the grid 
      * to each particle
@@ -215,6 +214,8 @@ void Grid::startGrid(void)
      * Ordenate the Vector of the grid
      */
     this->ordenateVector();
+    
+    //this->printParameters();
  }
   catch(cl::Error error){
     std::cout << error.what() << ' ' << CLGLError::errToStr(error.err())->c_str() << std::endl;
@@ -273,7 +274,7 @@ void Grid::buildGridKernels(void)
 void Grid::pushGridDataToDevice(void)
 {
   this->clgl->CLGLLoadDataToDevice(CL_TRUE, this->NUM_PART * sizeof(int), NULL, CL_MEM_READ_WRITE); //grid Index
-  this->clgl->CLGLLoadDataToDevice(CL_TRUE, this->NUM_PART * sizeof(vector), NULL, CL_MEM_READ_WRITE); //grid Coord
+  this->clgl->CLGLLoadDataToDevice(CL_TRUE, this->NUM_PART * sizeof(int4), NULL, CL_MEM_READ_WRITE); //grid Coord
   int nGridCubes = 3;
   this->clgl->CLGLLoadDataToDevice(CL_TRUE, sizeof(int), &nGridCubes, CL_MEM_READ_WRITE); //nGridCubes
   bool boolean = true;

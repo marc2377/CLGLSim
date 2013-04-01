@@ -430,9 +430,9 @@ void CLGL::CLGLModifyBufferOfDevice(cl::Buffer * buffer, cl_bool blocking, size_
 /*
  * Release a Memoy Object
  */
-void CLGL::CLGLReleaseMemory(cl::Memory * mem){
+void CLGL::CLGLReleaseMemory(cl::Buffer * mem){
   try{
-    mem->~Memory();
+    //mem->release();
   }
   catch(cl::Error error){
     std::cout << error.what() << ' ' << CLGLError::errToStr(error.err())->c_str() << std::endl;
