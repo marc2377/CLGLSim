@@ -45,14 +45,15 @@ class Grid
   protected:
     void buildGridKernels(void);
     void pushGridDataToDevice(void);
-    void setGridKernelArgs(cl::Memory pos);
+    void setGridKernelArgs(cl::Memory * pos);
     void startGrid(void);
     void ordenateVector(void);
 
+    void printParameters(void);
   public:
     // Contructor : builds grid kernels, allocs 
     // grid memory, set arguments to grids kernels
-    Grid(CLGL * clgl, cl::Memory pos, int NUM_PART);
+    Grid(CLGL * clgl, cl::Memory * pos, int NUM_PART);
     
     // Refresh the grid structure. Used when a 
     // particle change of cube in the grid

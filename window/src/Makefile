@@ -7,7 +7,7 @@ OBJ=$(SRC:.cpp=.o)
 CL_PATH_ATI=/opt/AMDAPP/include/
 CL_PATH_NVIDIA=/usr/include
 
-INCLUDE_PATH=-I../include -I../../sim/include -I../../clgl/include -I../../dataStruct/include -I../../dataLoader/include
+INCLUDE_PATH=-I../include -I../../sim/include -I../../clgl/include -I../../dataStruct/include -I../../dataLoader/include -I../../console/include
 
 all: $(OBJ)
 

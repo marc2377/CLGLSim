@@ -5,6 +5,8 @@
 //                                //
 //--------------------------------//
 
+#define VERSION "CLGLSim 1.0"
+
 #ifdef WIN32
   #include "CLGLWindows.hpp"
 #else
@@ -24,8 +26,7 @@ int main(int argc, char * argv[])
 {
   float rungeStep;
   int NUM_PART;
-  unsigned int nPhysicalKernels = 0;
-  std::string windowTitle = "CLGLSim 1.0";
+  std::string windowTitle = VERSION;
   CLGLParser console = CLGLParser(argc, argv);
 
   CLGLSim::curKernel = console.curKernel;
@@ -65,67 +66,13 @@ int main(int argc, char * argv[])
     if(console.isDataFileSet())
       hostData = loadDataFromFile(console.dataFile, &NUM_PART);
     else
-        hostData = genData(NUM_PART);
-   
+      hostData = genData(NUM_PART);
+
     // Set the Number of Particles beeing simulated
     CLGLWindow::NumParticles = NUM_PART;
 
-    /*
-     * Loads the physical simulation kernels
-     */
-    // Build the Source of the kernel
-    clgl.CLGLBuildProgramSource(console.kernelFile, "-I./kernels");
-
-    // Build the function console.kernel in the kernel 
-    clgl.CLGLBuildKernel(console.kernel);
-    console.kernel = "Gravity_rk1";
-    clgl.CLGLBuildKernel(console.kernel);
-    console.kernel = "Gravity_rk2";
-    clgl.CLGLBuildKernel(console.kernel);
-    console.kernel = "Gravity_rk4";
-    clgl.CLGLBuildKernel(console.kernel);
-    //Set the number of physical kernels that were charged
-    nPhysicalKernels = clgl.CLGLGetKernel()->size();
-
-    /*
-     * Pushing data to Device
-     */
-    std::cout << "-----------------------------------" << std::endl;
-    std::cout << "Pushing Data to Device" << std::endl;
-    std::cout << "-----------------------------------" << std::endl;
-    
-    // Physical data
-    clgl.CLGLLoadVBODataToDevice(hostData->pos.size() * sizeof(vector), &(hostData->pos[0]), CL_MEM_READ_WRITE);
-    clgl.CLGLLoadVBODataToDevice(hostData->color.size() * sizeof(vector), &(hostData->color[0]), CL_MEM_READ_WRITE);
-
-    clgl.CLGLLoadDataToDevice(CL_TRUE, NUM_PART * sizeof(GLfloat), hostData->mass, CL_MEM_READ_ONLY);
-    clgl.CLGLLoadDataToDevice(CL_TRUE, hostData->vel.size() * sizeof(vector), &(hostData->vel[0]), CL_MEM_READ_WRITE);
-
-    // Local variables for speed
-    std::vector<cl::Buffer> buff = *clgl.CLGLGetBuffer();
-    std::vector<cl::Memory> mem = *clgl.CLGLGetBufferGL();
-    std::vector<cl::Kernel> ker = *clgl.CLGLGetKernel();
-
-    /*
-     * Set Arguments for the kernels
-     */
-    // Set Physical Kernel ARGS.
-    for(unsigned int i=0; i < nPhysicalKernels; i++){
-      clgl.CLGLSetArg(0, buff[0], ker[i]);
-      clgl.CLGLSetArg(1, buff[1], ker[i]);
-      clgl.CLGLSetArg(2, mem[0], ker[i]);
-      clgl.CLGLSetArg(3, sizeof(float), &rungeStep, ker[i]);
-      clgl.CLGLSetArg(4, sizeof(int), &NUM_PART, ker[i]);
-    }
-    
-    // Set CLGLSim static members
-    CLGLSim::vbo = clgl.CLGLGetVBO();
-    CLGLSim::ParticlesNum = NUM_PART;
-    CLGLSim::rungeStep = rungeStep;
-    CLGLSim::clgl = &(clgl);
-    CLGLSim::rkx = &ker;
-    CLGLSim::buffer = &buff;
-    CLGLSim::dataStruct = new Grid(&clgl, mem[0], NUM_PART); //Add the data struct to the simulator
+    // Starts Physics
+    CLGLSim::CLGLStartPhysics(&clgl, rungeStep, NUM_PART, hostData, &console);
 
     std::cout << "-----------------------------------" << std::endl;
     std::cout << "Runing the Window" << std::endl;
@@ -135,6 +82,7 @@ int main(int argc, char * argv[])
   catch(cl::Error error)
   {
     std::cout << error.what() << CLGLError::errToStr(error.err())->c_str() << std::endl;
+    exit(EXIT_FAILURE);
   }
 
   return 0;

@@ -48,9 +48,11 @@ __kernel void  Gravity_rk1(
     __global float4 * vel,
     __global float4 * pos,
     __global int * gridIndex,
+    __global int4 * gridCoord,
     __global int * nGridCubes,
     __global int * nPartPerIndex,
-    __global int4 * gridCoord,
+    __global int * rebuildTreeFlag,
+    __global int * sideSize,
     float rungeStep, 
     int n)
 {
@@ -62,33 +64,39 @@ __kernel void  Gravity_rk1(
   __private float r;
   // Private variables for the grid
   __private int4 gCoord;
+  __private int4 newCoord;
   __private int2 index;
-  __private int gridCubes  = *nGridCubes / 2;
+  __private int gridCubes  = *nGridCubes - 2;
   __private int gridCubes2 = gridCubes  * gridCubes;
-  __private int gridCubes3 = gridCubes2 * gridCubes;
+  __private int shift = gridCubes / 2;
 
   __private float4 aux;
 
   if(i < n){
     gCoord = gridCoord[i];
-    posCur = pos[i];
-    velCur = vel[i];
-    for(int j = gCoord.x-1; j < gCoord.x+1; j++){
-      for(int k = gCoord.y-1; k < gCoord.y+1; k++){
-        for(int l = gCoord.z-1; l < gCoord.z+1; l++){
-          index = getNeighbors(gridIndex, nPartPerIndex, j * gridCubes2 + k * gridCubes + l + gridCubes3);
+    posCur = pos[gCoord.w];
+    velCur = vel[gCoord.w];
+    for(int j = gCoord.x-1; j <= gCoord.x+1; j++){
+      for(int k = gCoord.y-1; k <= gCoord.y+1; k++){
+        for(int l = gCoord.z-1; l <= gCoord.z+1; l++){
+          index = getNeighbors(gridIndex, nPartPerIndex, (j+shift) * gridCubes2 + (k+shift) * gridCubes + (l+shift));
           for(int in = index.x; in < index.y; in++){
-            aux = pos[j] - posCur;
+            aux = pos[in] - posCur;
             r = dot(aux, aux);
             if(r <= MIN_DISTANCE || r >= MAX_DISTANCE) 
               continue;
-            aRes += G * mass[j] * (aux) * rsqrt(r) / r;
+            aRes += G * mass[in] * (aux) * rsqrt(r) / r;
           }
         }
       }
     }
-    vel[i] = velCur + aRes * rungeStep;
-    pos[i] = posCur + velCur * rungeStep;
+    vel[gCoord.w] = velCur + aRes * rungeStep;
+    posCur = posCur + velCur * rungeStep;
+    pos[gCoord.w] = posCur + velCur * rungeStep;
+    
+    newCoord = convert_int4_rtz(posCur) / *sideSize;
+    if(newCoord.x != gCoord.x || newCoord.y != gCoord.y || newCoord.z != gCoord.z);
+      *rebuildTreeFlag = true;
   }
 }
 

@@ -307,7 +307,13 @@ cl::Memory* CLGL::CLGLLoadVBODataToDevice(size_t bufferBytesSize, void * hostMem
  */
 void CLGL::CLGLSetArg(int argNum, cl::Memory buffer, cl::Kernel kernel)
 {
-  kernel.setArg(argNum, buffer);
+  try{
+    kernel.setArg(argNum, buffer);
+  }
+  catch(cl::Error error){
+    std::cout << error.what() << ' ' << CLGLError::errToStr(error.err())->c_str() << std::endl;
+    exit(EXIT_FAILURE);
+  }
   return;
 }
 
@@ -316,7 +322,13 @@ void CLGL::CLGLSetArg(int argNum, cl::Memory buffer, cl::Kernel kernel)
  */
 void CLGL::CLGLSetArg(int argNum, size_t bytesSize, void* buffer, cl::Kernel kernel)
 {
-  kernel.setArg(argNum, bytesSize, buffer);
+  try{
+    kernel.setArg(argNum, bytesSize, buffer);
+  }
+  catch(cl::Error error){
+    std::cout << error.what() << ' ' << CLGLError::errToStr(error.err())->c_str() << std::endl;
+    exit(EXIT_FAILURE);
+  }
   return;
 }
 

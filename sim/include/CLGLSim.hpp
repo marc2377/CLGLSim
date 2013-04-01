@@ -10,6 +10,7 @@
 
 #include "CLGL.hpp"
 #include "Grid.hpp"
+#include "CLGLParser.hpp"
 
 #include <vector>
 #include <stdlib.h>
@@ -54,7 +55,9 @@ class CLGLSim
     // ------- //
     // Methods //
     // ------- //
-    //Runs the Kernel
+    // Starts the physical kernels and gives them data
+    static void CLGLStartPhysics(CLGL * clgl, float rungeStep, int NUM_PART, body * hostData, CLGLParser * console);
+    // Runs the Kernel
     static void CLGLRunKernel(void);
 };
 

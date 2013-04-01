@@ -12,7 +12,7 @@
 // by n
 __kernel void getGridSideSize(
     __global float4 * pos,
-    __global float * sideSize,
+    __global int * sideSize,
     int n)
 {
   __private uint i = get_global_id(0);
@@ -24,7 +24,8 @@ __kernel void getGridSideSize(
     dist2 = pos[j];
     dist1.w = 0;
     dist2.w = 0;
-    atomicAdd(sideSize, fast_distance(dist1, dist2));
+    atomic_add(sideSize, (int)fast_distance(dist1, dist2));
+//    atomicAdd(sideSize, (int)fast_distance(dist1, dist2));
   }
 
   return;
@@ -37,7 +38,7 @@ __kernel void getNGridCubes(
     __global float4 * pos,
     __global int4 * gridCoord,
     __global int * nGridCubes,
-    __global float * sideSize,
+    __global int * sideSize,
     int n)
 {
   __private uint i = get_global_id(0);
@@ -46,7 +47,7 @@ __kernel void getNGridCubes(
   if(i < n){
     gridCoord[i] = convert_int4_rtz(pos[i]) / *sideSize; //get the coord in the grid
     gridCoord[i].w = i;           //set the index of the corresponding position in pos array
-    p = (abs(gridCoord[i]) * 2) + 2;             // private is faster
+    p = (abs(gridCoord[i]) * 2) + 3; // +2 for padding
     
     // Atomic functions
     atomic_max(nGridCubes, p.x);  
@@ -68,14 +69,14 @@ __kernel void setGridIndex(
     int n)
 {
   __private unsigned int i = get_global_id(0);
-  __private int gridCubes = *nGridCubes / 2;
+  __private int gridCubes = *nGridCubes - 2;
   __private int gridCubes2 = gridCubes * gridCubes;
   __private int gridCubes3 = gridCubes2 * gridCubes;
   __private int4 aux;
 
   if(i < n){
-    aux = gridCoord[i];
-    gridIndex[i] = (aux.x * gridCubes2) + (aux.y * gridCubes) + (aux.z) + gridCubes3; 
+    aux = gridCoord[i] + gridCubes / 2;
+    gridIndex[i] = (aux.x * gridCubes2) + (aux.y * gridCubes) + (aux.z); 
     atomic_inc(&(nPartPerIndex[gridIndex[i]]));
   }
 
@@ -132,48 +133,4 @@ __kernel void bubbleSort3D_odd(
   }
 }
 
-/*
- * --------------------------------------------
- *              Helper Functions              |
- * --------------------------------------------
- */
 
-/*
- * Get the begin and end of the same index
- * "searchIndex" and returns
- * index.x = index of beggining
- * index.y = index of end + 1
- */
-inline int2 getNeighbors(
-    __global int * gridIndex,
-    __global int * nPartPerIndex,
-    int searchIndex) //Index to search in gridIndex
-{
-  __private int2 index = 0;
-  __private uint i;
-
-  for(i=0; i < searchIndex; i++){
-    index.x += nPartPerIndex[i];
-  }
-  index.y = nPartPerIndex[i];
-
-  return index;
-}
-
-/*
- * Implementation for Atomic Add to store a float number
- */
-inline void atomicAdd(volatile __global float *source, const float operand) {
-  union {
-    unsigned int intVal;
-    float floatVal;
-  } newVal;
-  union {
-    unsigned int intVal;
-    float floatVal;
-  } prevVal;
-  do {
-    prevVal.floatVal = *source;
-    newVal.floatVal = prevVal.floatVal + operand;
-  } while (atomic_cmpxchg((volatile __global unsigned int *)source, prevVal.intVal, newVal.intVal) != prevVal.intVal);
-}

@@ -91,7 +91,6 @@ body * loadDataFromFile(std::string dataFileName, int * numPart)
     if(!str.compare("r"))
       *numPart = *numPart + 1;
   }
-  std::cout << *numPart << std::endl;
 
   b->mass = new GLfloat[*numPart];
   b->radius = new GLfloat[*numPart];
