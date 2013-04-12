@@ -38,7 +38,7 @@ int main(int argc, char * argv[])
   std::cout << "Using " << console.kernel << " Kernel !" << std::endl;
   std::cout << "-----------------------------------" << std::endl;
 
-  body * hostData;
+  data * hostData;
 
   // Define Window Height and Width
   CLGLWindow::window_height = 768;
@@ -63,16 +63,16 @@ int main(int argc, char * argv[])
     std::cout << "-----------------------------------" << std::endl;
     std::cout << "Loading Data" << std::endl;
     std::cout << "-----------------------------------" << std::endl;
-    if(console.isDataFileSet())
-      hostData = loadDataFromFile(console.dataFile, &NUM_PART);
-    else
-      hostData = genData(NUM_PART);
+    //if(console.isDataFileSet())
+      //hostData = loadDataFromFile(console.dataFile, &NUM_PART);
+    //else
+      hostData = genData(console.NUM_PART_FLUID, console.NUM_PART_SOLID);
 
     // Set the Number of Particles beeing simulated
     CLGLWindow::NumParticles = NUM_PART;
 
     // Starts Physics
-    CLGLSim::CLGLStartPhysics(&clgl, rungeStep, NUM_PART, hostData, &console);
+    CLGLSim::CLGLStartPhysics(&clgl, rungeStep, hostData, &console);
 
     std::cout << "-----------------------------------" << std::endl;
     std::cout << "Runing the Window" << std::endl;

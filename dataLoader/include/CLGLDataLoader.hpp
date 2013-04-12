@@ -18,24 +18,13 @@
 #include <math.h>
 #include <GL/gl.h>
 
-typedef struct t_vector4
-{
-  float x,y,z,w;
-} vector;
-
-typedef struct t_body
-{
-  GLfloat* mass;
-  GLfloat* radius;
-  std::vector<vector> pos;
-  std::vector<vector> vel;
-  std::vector<vector> color;
-} body;
+#include "definitions.h"
 
 // Load data from file dataFileName and returns also
 // the number of particles
-body * genData(int numPart);
 
-body * loadDataFromFile(std::string dataFileName, int * numPart);
+data * loadDataFromFile(std::string dataFileName, int * numPart);
+
+data * genData(int NUM_PART_FLUID, int NUM_PART_SOLID);
 
 #endif

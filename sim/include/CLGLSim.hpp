@@ -11,15 +11,10 @@
 #include "CLGL.hpp"
 #include "Grid.hpp"
 #include "CLGLParser.hpp"
+#include "definitions.h"
 
 #include <vector>
 #include <stdlib.h>
-
-enum kernel{
-  rk1,
-  rk2,
-  rk4
-};
 
 class CLGLSim
 {
@@ -38,7 +33,7 @@ class CLGLSim
     static Grid * dataStruct;
     
     //Number of particles beeing simulated
-    static int ParticlesNum;
+    static int ParticlesNum, NUM_PART_FLUID, NUM_PART_SOLID, indexBufferSize;
     
     //Runge Step used
     static float rungeStep;
@@ -56,7 +51,7 @@ class CLGLSim
     // Methods //
     // ------- //
     // Starts the physical kernels and gives them data
-    static void CLGLStartPhysics(CLGL * clgl, float rungeStep, int NUM_PART, body * hostData, CLGLParser * console);
+    static void CLGLStartPhysics(CLGL * clgl, float rungeStep, data * hostData, CLGLParser * console);
     // Runs the Kernel
     static void CLGLRunKernel(void);
 };

@@ -81,6 +81,61 @@ CLGLWindow::CLGLWindow()
 }
 
 /*
+ * Draw the content of buffer of GPU
+ */
+void CLGLDrawParticles(int NUM_PART, int offset)
+{
+  //VBO Color must be inserted in last place
+  glBindBuffer(GL_ARRAY_BUFFER, (*CLGLSim::vbo)[offset+1]);
+  glColorPointer(4, GL_FLOAT, 0, 0);
+
+  // Binds the vertex VBO's
+  glBindBuffer(GL_ARRAY_BUFFER, (*CLGLSim::vbo)[offset]);
+  glVertexPointer(3, GL_FLOAT, 16, 0);
+
+  // Enable Cient State
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
+
+  //Need to disable these for blender
+  glDisableClientState(GL_NORMAL_ARRAY);
+
+  // Draw the simulation points
+  glDrawArrays(GL_POINTS, 0, NUM_PART);
+  glFlush();
+
+  // Disable Client State
+  glDisableClientState(GL_COLOR_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+/*
+ * Draw the connections of the Solid Particles
+ */
+void CLGLDrawLines(int indexBufferSize, int offset)
+{
+ // Binds the vertex VBO's
+ /* glBindBuffer(GL_ARRAY_BUFFER, (*CLGLSim::vbo)[offset]);
+  glVertexPointer(3, GL_FLOAT, 16, 0);*/
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (*CLGLSim::vbo)[offset]);
+
+  // Enable Cient State
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_INDEX_ARRAY);
+
+  glDisableClientState(GL_NORMAL_ARRAY);
+
+  // Draw the simulation points
+  glDrawElements(GL_LINES, indexBufferSize, GL_UNSIGNED_INT, 0);
+  glFlush();
+
+  // Disable Client State
+  glDisableClientState(GL_COLOR_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_INDEX_ARRAY);
+}
+
+/*
  * Render each frame of the window
  */
 void CLGLWindowRender(void)
@@ -109,30 +164,13 @@ void CLGLWindowRender(void)
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_POINT_SMOOTH);
-  glPointSize(0.1);
+  glPointSize(5);
 
-  //VBO Color must be inserted in last place
-  glBindBuffer(GL_ARRAY_BUFFER, CLGLSim::vbo->back());
-  glColorPointer(4, GL_FLOAT, 0, 0);
-
-  // Binds the vertex VBO's
-  glBindBuffer(GL_ARRAY_BUFFER, (*CLGLSim::vbo)[0]);
-  glVertexPointer(3, GL_FLOAT, 16, 0);
-
-  // Enable Cient State
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glEnableClientState(GL_COLOR_ARRAY);
-
-  //Need to disable these for blender
-  glDisableClientState(GL_NORMAL_ARRAY);
-
-  // Draw the simulation points
-  glDrawArrays(GL_POINTS, 0, CLGLSim::ParticlesNum);
-  glFlush();
-
-  // Disable Client State
-  glDisableClientState(GL_COLOR_ARRAY);
-  glDisableClientState(GL_VERTEX_ARRAY);
+  // Print Fluid and Solid particles
+  // MUST BE IN THIS ORDER !!
+  CLGLDrawParticles(CLGLSim::NUM_PART_FLUID, 0);
+  CLGLDrawParticles(CLGLSim::NUM_PART_SOLID, 2);
+  CLGLDrawLines(CLGLSim::indexBufferSize, 4);
 
   // Bind the buffers to zero
   glBindBuffer(GL_ARRAY_BUFFER, 0);

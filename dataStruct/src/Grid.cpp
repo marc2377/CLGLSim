@@ -10,7 +10,7 @@
 void Grid::printParameters(void)
 {
   int nGridCubesVar, sideSizeVar;
-  int * gridIndexVar = new int[this->NUM_PART];
+  int2 * gridIndexVar = new int2[this->NUM_PART];
   int4 * gridCoordVar = new int4[this->NUM_PART];
   int * nPartPerIndexVar;
   bool mVF, rTF;
@@ -30,10 +30,10 @@ void Grid::printParameters(void)
   this->clgl->CLGLGetDataFromDevice(&(*this->buff)[this->getBuffBegin() + modificationVectorFlag], CL_TRUE, sizeof(bool), &mVF);
   std::cout << "modificationVectorFlag: " << mVF << std::endl;
   // gridIndex
-  this->clgl->CLGLGetDataFromDevice(&(*this->buff)[this->getBuffBegin() + gridIndex], CL_TRUE, sizeof(int) * this->NUM_PART, gridIndexVar);
+  this->clgl->CLGLGetDataFromDevice(&(*this->buff)[this->getBuffBegin() + gridIndex], CL_TRUE, sizeof(int2) * this->NUM_PART, gridIndexVar);
   std::cout << "gridIndex: ";
   for(int i=0; i < this->NUM_PART; i++)
-    std::cout << gridIndexVar[i] << " | ";
+    std::cout << " (" << gridIndexVar[i].x << " , " << gridIndexVar[i].y << ") ";
   std::cout << std::endl;
   // gridCoord
   this->clgl->CLGLGetDataFromDevice(&(*this->buff)[this->getBuffBegin() + gridCoord], CL_TRUE, sizeof(int4) * this->NUM_PART, gridCoordVar);
@@ -41,12 +41,43 @@ void Grid::printParameters(void)
   for(int i=0; i < this->NUM_PART; i++)
     std::cout << "(" << gridCoordVar[i].x << "," << gridCoordVar[i].y << "," << gridCoordVar[i].z << "," << gridCoordVar[i].w << ") | ";
   std::cout << std::endl;
+  // Position
+  std::cout << "Solid Pos" << std::endl;
+  this->clgl->CLGLSetArg(0, &(*this->buffGL)[solidPos], (*this->kernel)[copyVBO]);
+  this->clgl->CLGLSetArg(1, &(*this->buff)[debug], (*this->kernel)[copyVBO]);
+  this->clgl->CLGLRunKernel((*this->kernel)[copyVBO], this->NUM_PART_SOLID);
+  float4 * v = new float4[this->NUM_PART];
+  this->clgl->CLGLGetDataFromDevice(&(*this->buff)[debug], CL_TRUE, this->NUM_PART_SOLID * sizeof(float4), v);
+  for (int i = 0; i < this->NUM_PART_SOLID; i++) {
+    std::cout << "(" << v[i].x << "," << v[i].y << "," << v[i].z << ")";
+  }
+  std::cout << std::endl;
+  std::cout << "Fluid Pos" << std::endl;
+  this->clgl->CLGLSetArg(0, &(*this->buffGL)[fluidPos], (*this->kernel)[copyVBO]);
+  this->clgl->CLGLSetArg(1, &(*this->buff)[debug], (*this->kernel)[copyVBO]);
+  this->clgl->CLGLRunKernel((*this->kernel)[copyVBO], this->NUM_PART_FLUID);
+  this->clgl->CLGLGetDataFromDevice(&(*this->buff)[debug], CL_TRUE, this->NUM_PART_FLUID * sizeof(float4), v);
+  for (int i = 0; i < this->NUM_PART_FLUID; i++) {
+    std::cout << "(" << v[i].x << "," << v[i].y << "," << v[i].z << ")";
+  }
+  std::cout << std::endl;
+  std::cout << "Density" << std::endl;
+  float * d = new float[this->NUM_PART_FLUID];
+  this->clgl->CLGLGetDataFromDevice(&(*this->buff)[fluidDensity], CL_TRUE, this->NUM_PART_FLUID * sizeof(float), d);
+  for (int i = 0; i < this->NUM_PART_FLUID; i++) {
+    std::cout << d[i] << " | ";
+  }
+  std::cout << std::endl;
   // nPartPerIndexVar
   nPartPerIndexVar = new int[nGridCubesVar * nGridCubesVar * nGridCubesVar];
   this->clgl->CLGLGetDataFromDevice(&(*this->buff)[this->getBuffBegin() + nPartPerIndex], CL_TRUE, sizeof(int) * nGridCubesVar * nGridCubesVar * nGridCubesVar, nPartPerIndexVar);
  std::cout << "nPartPerIndex: ";
-  for(int i=0; i < nGridCubesVar * nGridCubesVar * nGridCubesVar; i++)
-    std::cout << nPartPerIndexVar[i] << " | ";
+  for(int i=0; i < nGridCubesVar * nGridCubesVar * nGridCubesVar; i++){
+    if(nPartPerIndexVar[i] == 0)
+      continue;
+    else
+      std::cout << " | " << "[" << i << "] =" << nPartPerIndexVar[i];
+  }
   std::cout << std::endl;
 
   std::cout << "-------------------------------------" << std::endl;
@@ -57,13 +88,16 @@ void Grid::printParameters(void)
  * Constructor: builds grid's kernels, allocs 
  * grid memory, set rguments to grid's kernels
  */
-Grid::Grid(CLGL * clgl, cl::Memory * pos, int NUM_PART)
+Grid::Grid(CLGL * clgl, int * NUM_PART)
 {
   // Sets privates arguments
   this->clgl = clgl;
-  this->NUM_PART = NUM_PART;
+  this->NUM_PART = NUM_PART[0];
+  this->NUM_PART_FLUID = NUM_PART[1];
+  this->NUM_PART_SOLID = NUM_PART[2];
   this->kernel = this->clgl->CLGLGetKernel();
   this->buff = this->clgl->CLGLGetBuffer();
+  this->buffGL = this->clgl->CLGLGetBufferGL();
   this->kerBegin = this->kernel->size(); //firt index of grid kernels
   this->buffBegin = this->buff->size();
   
@@ -80,7 +114,7 @@ Grid::Grid(CLGL * clgl, cl::Memory * pos, int NUM_PART)
   /*
    * Set Arguments to grid kernels
    */
-  this->setGridKernelArgs(pos);
+  this->setGridKernelArgs();
 
   /*
    * Starts the grid
@@ -100,7 +134,9 @@ void Grid::refreshGrid(void)
      * Gets the number of grid cubes to be 
      * used in the simulation
      */
-    this->clgl->CLGLRunKernel((*this->kernel)[this->kerBegin + getNGridCubes], this->NUM_PART);
+    int z = 0;
+    this->clgl->CLGLModifyBufferOfDevice(&(*this->buff)[this->buffBegin + nGridCubes], CL_TRUE, 0, sizeof(int), &z);
+    this->clgl->CLGLRunKernel((*this->kernel)[this->kerBegin + getNGridCubesRefresh], this->NUM_PART);
 
     /*
      * Set the corresponding index of the grid 
@@ -124,8 +160,9 @@ void Grid::refreshGrid(void)
     // Loads to device the vector of zeros
     this->clgl->CLGLLoadDataToDevice(CL_TRUE, sizeof(int) * nGridCubesDevice, zero, CL_MEM_READ_WRITE); //nPartPerIndex
     // Sets nPartPerIndex as the argument for the kernels
-    this->clgl->CLGLSetArg(4, (*this->buff)[this->buffBegin + nPartPerIndex], (*this->kernel)[this->kerBegin + setGridIndex]);
-    this->clgl->CLGLSetArg(6, (*this->buff)[this->buffBegin + nPartPerIndex], (*this->kernel)[0]);
+    this->clgl->CLGLSetArg(3, &(*this->buff)[this->buffBegin + nPartPerIndex], (*this->kernel)[this->kerBegin + setGridIndex]);
+    this->clgl->CLGLSetArg(5, &(*this->buff)[this->buffBegin + nPartPerIndex], (*this->kernel)[Fluid_Density]);
+    this->clgl->CLGLSetArg(6, &(*this->buff)[this->buffBegin + nPartPerIndex], (*this->kernel)[Fluid_rk1]);
     // Runs the kernel setGridIndex
     this->clgl->CLGLRunKernel((*this->kernel)[this->kerBegin + setGridIndex], this->NUM_PART);
     
@@ -160,7 +197,8 @@ void Grid::startGrid(void)
      * Gets n * GridSize, divide by n and stores the average gridSize
      */
     // Gets n * GridSize
-    this->clgl->CLGLRunKernel((*this->kernel)[this->kerBegin + getGridSideSize], this->NUM_PART);
+    this->clgl->CLGLRunKernel((*this->kernel)[this->kerBegin + getGridSideSizeFluid], this->NUM_PART_FLUID);
+    this->clgl->CLGLRunKernel((*this->kernel)[this->kerBegin + getGridSideSizeSolid], this->NUM_PART_SOLID);
 
     this->clgl->CLGLGetDataFromDevice(&(*this->buff)[this->buffBegin + sideSize], CL_TRUE, sizeof(int), &sideSizeDevice);
     
@@ -184,7 +222,8 @@ void Grid::startGrid(void)
      * Gets the number of grid cubes to be 
      * used in the simulation
      */
-    this->clgl->CLGLRunKernel((*this->kernel)[this->kerBegin + getNGridCubes], this->NUM_PART);
+    this->clgl->CLGLRunKernel((*this->kernel)[this->kerBegin + getNGridCubesFluid], this->NUM_PART_FLUID);
+    this->clgl->CLGLRunKernel((*this->kernel)[this->kerBegin + getNGridCubesSolid], this->NUM_PART_SOLID);
 
     /*
      * Set the corresponding index of the grid 
@@ -206,7 +245,7 @@ void Grid::startGrid(void)
     // Loads to device the vector of zeros
     this->clgl->CLGLLoadDataToDevice(CL_TRUE, sizeof(int) * nGridCubesDevice, zero, CL_MEM_READ_WRITE); //nPartPerIndex
     // Sets this vector as the argument 4 of setGridIndex
-    this->clgl->CLGLSetArg(4, (*this->buff)[this->buffBegin + nPartPerIndex], (*this->kernel)[this->kerBegin + setGridIndex]);
+    this->clgl->CLGLSetArg(3, &(*this->buff)[this->buffBegin + nPartPerIndex], (*this->kernel)[this->kerBegin + setGridIndex]);
     // Runs the kernel setGridIndex
     this->clgl->CLGLRunKernel((*this->kernel)[this->kerBegin + setGridIndex], this->NUM_PART);
     
@@ -252,13 +291,25 @@ void Grid::buildGridKernels(void)
   std::string kernel;
 
   this->clgl->CLGLBuildProgramSource("kernels/grid.cl", "-I./kernels/"); //build the kernel file
-  //build the kernels
+  //build the kernels for the fluid particles
   kernel = "getGridSideSize";
   this->clgl->CLGLBuildKernel(kernel);
   kernel = "getNGridCubes";
   this->clgl->CLGLBuildKernel(kernel);
+
+  //build the kernels for the solid particles
+  kernel = "getGridSideSize";
+  this->clgl->CLGLBuildKernel(kernel);
+  kernel = "getNGridCubes";
+  this->clgl->CLGLBuildKernel(kernel);
+ 
+  // This function is commun for both
+  kernel = "getNGridCubesRefresh";
+  this->clgl->CLGLBuildKernel(kernel);
   kernel = "setGridIndex";
   this->clgl->CLGLBuildKernel(kernel);
+
+  // sort kernel
   kernel = "bubbleSort3D_even";
   this->clgl->CLGLBuildKernel(kernel);
   kernel = "bubbleSort3D_odd";
@@ -273,7 +324,17 @@ void Grid::buildGridKernels(void)
  */
 void Grid::pushGridDataToDevice(void)
 {
-  this->clgl->CLGLLoadDataToDevice(CL_TRUE, this->NUM_PART * sizeof(int), NULL, CL_MEM_READ_WRITE); //grid Index
+  int2 * gridIndex = new int2[this->NUM_PART];
+  
+  for (int i = 0; i < this->NUM_PART_FLUID; i++) {
+    gridIndex[i].x = 42;
+    gridIndex[i].y = FLUID;
+  }
+  for (int i = this->NUM_PART_FLUID; i < this->NUM_PART; i++) {
+    gridIndex[i].x = 51;
+    gridIndex[i].y = SOLID;
+  }
+  this->clgl->CLGLLoadDataToDevice(CL_TRUE, this->NUM_PART * sizeof(int2), gridIndex, CL_MEM_READ_WRITE); //grid Index
   this->clgl->CLGLLoadDataToDevice(CL_TRUE, this->NUM_PART * sizeof(int4), NULL, CL_MEM_READ_WRITE); //grid Coord
   int nGridCubes = 3;
   this->clgl->CLGLLoadDataToDevice(CL_TRUE, sizeof(int), &nGridCubes, CL_MEM_READ_WRITE); //nGridCubes
@@ -288,33 +349,64 @@ void Grid::pushGridDataToDevice(void)
 /*
  * Set the grid's kernels arguments
  */
-void Grid::setGridKernelArgs(cl::Memory * pos)
+void Grid::setGridKernelArgs()
 {
+  int offset = 0;
+
+  // Set the fluids grid kernels arguments
   // Setting args for kernel getGridSideSize
-  this->clgl->CLGLSetArg(0, *pos, (*this->kernel)[this->kerBegin + getGridSideSize]);
-  this->clgl->CLGLSetArg(1, (*this->buff)[this->buffBegin + sideSize], (*this->kernel)[this->kerBegin + getGridSideSize]);
-  this->clgl->CLGLSetArg(2, sizeof(int), &this->NUM_PART, (*this->kernel)[this->kerBegin + getGridSideSize]);
+  this->clgl->CLGLSetArg(0, &(*this->buffGL)[fluidPos], (*this->kernel)[this->kerBegin + getGridSideSizeFluid]);
+  this->clgl->CLGLSetArg(1, &(*this->buff)[this->buffBegin + sideSize], (*this->kernel)[this->kerBegin + getGridSideSizeFluid]);
+  this->clgl->CLGLSetArg(2, sizeof(int), &this->NUM_PART_FLUID, (*this->kernel)[this->kerBegin + getGridSideSizeFluid]);
   // Setting args to kernel getNGridCubes
-  this->clgl->CLGLSetArg(0, *pos, (*this->kernel)[this->kerBegin + getNGridCubes]);
-  this->clgl->CLGLSetArg(1, (*this->buff)[this->buffBegin + gridCoord], (*this->kernel)[this->kerBegin + getNGridCubes]);
-  this->clgl->CLGLSetArg(2, (*this->buff)[this->buffBegin + nGridCubes], (*this->kernel)[this->kerBegin + getNGridCubes]);
-  this->clgl->CLGLSetArg(3, (*this->buff)[this->buffBegin + sideSize], (*this->kernel)[this->kerBegin + getNGridCubes]);
-  this->clgl->CLGLSetArg(4, sizeof(int), &this->NUM_PART, (*this->kernel)[this->kerBegin + getNGridCubes]);
+  this->clgl->CLGLSetArg(0, &(*this->buffGL)[fluidPos], (*this->kernel)[this->kerBegin + getNGridCubesFluid]);
+  this->clgl->CLGLSetArg(1, &(*this->buff)[this->buffBegin + gridCoord], (*this->kernel)[this->kerBegin + getNGridCubesFluid]);
+  this->clgl->CLGLSetArg(2, &(*this->buff)[this->buffBegin + nGridCubes], (*this->kernel)[this->kerBegin + getNGridCubesFluid]);
+  this->clgl->CLGLSetArg(3, &(*this->buff)[this->buffBegin + sideSize], (*this->kernel)[this->kerBegin + getNGridCubesFluid]);
+  this->clgl->CLGLSetArg(4, sizeof(int), &offset, (*this->kernel)[this->kerBegin + getNGridCubesFluid]);
+  this->clgl->CLGLSetArg(5, sizeof(int), &this->NUM_PART_FLUID, (*this->kernel)[this->kerBegin + getNGridCubesFluid]);
+  
+  // Offset must be the number of fluid particles
+  offset = this->NUM_PART_FLUID;
+
+  // Sets the solids grids kernels arguments
+  // Setting args for kernel getGridSideSize
+  this->clgl->CLGLSetArg(0,&(*this->buffGL)[solidPos], (*this->kernel)[this->kerBegin + getGridSideSizeSolid]);
+  this->clgl->CLGLSetArg(1, &(*this->buff)[this->buffBegin + sideSize], (*this->kernel)[this->kerBegin + getGridSideSizeSolid]);
+  this->clgl->CLGLSetArg(2, sizeof(int), &this->NUM_PART_SOLID, (*this->kernel)[this->kerBegin + getGridSideSizeSolid]);
+  // Setting args to kernel getNGridCubes
+  this->clgl->CLGLSetArg(0, &(*this->buffGL)[solidPos], (*this->kernel)[this->kerBegin + getNGridCubesSolid]);
+  this->clgl->CLGLSetArg(1, &(*this->buff)[this->buffBegin + gridCoord], (*this->kernel)[this->kerBegin + getNGridCubesSolid]);
+  this->clgl->CLGLSetArg(2, &(*this->buff)[this->buffBegin + nGridCubes], (*this->kernel)[this->kerBegin + getNGridCubesSolid]);
+  this->clgl->CLGLSetArg(3, &(*this->buff)[this->buffBegin + sideSize], (*this->kernel)[this->kerBegin + getNGridCubesSolid]);
+  this->clgl->CLGLSetArg(4, sizeof(int), &offset, (*this->kernel)[this->kerBegin + getNGridCubesSolid]);
+  this->clgl->CLGLSetArg(5, sizeof(int), &(this->NUM_PART_SOLID), (*this->kernel)[this->kerBegin + getNGridCubesSolid]);
+
+  // Sets args to commun kernel
+  // Setting args to kernel getNGridCubesRefresh
+  this->clgl->CLGLSetArg(0, &(*this->buffGL)[solidPos], (*this->kernel)[this->kerBegin + getNGridCubesRefresh]);
+  this->clgl->CLGLSetArg(1, &(*this->buffGL)[fluidPos], (*this->kernel)[this->kerBegin + getNGridCubesRefresh]);
+  this->clgl->CLGLSetArg(2, &(*this->buff)[this->buffBegin + gridCoord], (*this->kernel)[this->kerBegin + getNGridCubesRefresh]);
+  this->clgl->CLGLSetArg(3, &(*this->buff)[this->buffBegin + gridIndex], (*this->kernel)[this->kerBegin + getNGridCubesRefresh]);
+  this->clgl->CLGLSetArg(4, &(*this->buff)[this->buffBegin + nGridCubes], (*this->kernel)[this->kerBegin + getNGridCubesRefresh]);
+  this->clgl->CLGLSetArg(5, &(*this->buff)[this->buffBegin + sideSize], (*this->kernel)[this->kerBegin + getNGridCubesRefresh]);
+  this->clgl->CLGLSetArg(6, sizeof(int), &this->NUM_PART, (*this->kernel)[this->kerBegin + getNGridCubesRefresh]);
   // Setting args to kernel setGridIndex
-  this->clgl->CLGLSetArg(0, *pos, (*this->kernel)[this->kerBegin + setGridIndex]);
-  this->clgl->CLGLSetArg(1, (*this->buff)[this->buffBegin + gridIndex], (*this->kernel)[this->kerBegin + setGridIndex]);
-  this->clgl->CLGLSetArg(2, (*this->buff)[this->buffBegin + gridCoord], (*this->kernel)[this->kerBegin + setGridIndex]);
-  this->clgl->CLGLSetArg(3, (*this->buff)[this->buffBegin + nGridCubes], (*this->kernel)[this->kerBegin + setGridIndex]);
-  this->clgl->CLGLSetArg(5, sizeof(int), &this->NUM_PART, (*this->kernel)[this->kerBegin + setGridIndex]);
+  this->clgl->CLGLSetArg(0, &(*this->buff)[this->buffBegin + gridIndex], (*this->kernel)[this->kerBegin + setGridIndex]);
+  this->clgl->CLGLSetArg(1, &(*this->buff)[this->buffBegin + gridCoord], (*this->kernel)[this->kerBegin + setGridIndex]);
+  this->clgl->CLGLSetArg(2, &(*this->buff)[this->buffBegin + nGridCubes], (*this->kernel)[this->kerBegin + setGridIndex]);
+  this->clgl->CLGLSetArg(4, sizeof(int), &this->NUM_PART, (*this->kernel)[this->kerBegin + setGridIndex]);
+
+
   // Setting args to kernel bubbleSort3D_even
-  this->clgl->CLGLSetArg(0, (*this->buff)[this->buffBegin + gridIndex], (*this->kernel)[this->kerBegin + bubbleSort3D_even]);
-  this->clgl->CLGLSetArg(1, (*this->buff)[this->buffBegin + gridCoord], (*this->kernel)[this->kerBegin + bubbleSort3D_even]);
-  this->clgl->CLGLSetArg(2, (*this->buff)[this->buffBegin + modificationVectorFlag], (*this->kernel)[this->kerBegin + bubbleSort3D_even]);
+  this->clgl->CLGLSetArg(0, &(*this->buff)[this->buffBegin + gridIndex], (*this->kernel)[this->kerBegin + bubbleSort3D_even]);
+  this->clgl->CLGLSetArg(1, &(*this->buff)[this->buffBegin + gridCoord], (*this->kernel)[this->kerBegin + bubbleSort3D_even]);
+  this->clgl->CLGLSetArg(2, &(*this->buff)[this->buffBegin + modificationVectorFlag], (*this->kernel)[this->kerBegin + bubbleSort3D_even]);
   this->clgl->CLGLSetArg(3, sizeof(int), &this->NUM_PART, (*this->kernel)[this->kerBegin + bubbleSort3D_even]);
   // Setting args to kernel bubbleSort3D_odd
-  this->clgl->CLGLSetArg(0, (*this->buff)[this->buffBegin + gridIndex], (*this->kernel)[this->kerBegin + bubbleSort3D_odd]);
-  this->clgl->CLGLSetArg(1, (*this->buff)[this->buffBegin + gridCoord], (*this->kernel)[this->kerBegin + bubbleSort3D_odd]);
-  this->clgl->CLGLSetArg(2, (*this->buff)[this->buffBegin + modificationVectorFlag], (*this->kernel)[this->kerBegin + bubbleSort3D_odd]);
+  this->clgl->CLGLSetArg(0, &(*this->buff)[this->buffBegin + gridIndex], (*this->kernel)[this->kerBegin + bubbleSort3D_odd]);
+  this->clgl->CLGLSetArg(1, &(*this->buff)[this->buffBegin + gridCoord], (*this->kernel)[this->kerBegin + bubbleSort3D_odd]);
+  this->clgl->CLGLSetArg(2, &(*this->buff)[this->buffBegin + modificationVectorFlag], (*this->kernel)[this->kerBegin + bubbleSort3D_odd]);
   this->clgl->CLGLSetArg(3, sizeof(int), &this->NUM_PART, (*this->kernel)[this->kerBegin + bubbleSort3D_odd]);
 }
 

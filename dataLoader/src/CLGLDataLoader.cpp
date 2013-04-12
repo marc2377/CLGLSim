@@ -11,55 +11,137 @@
 // Gen DATA Functions //
 // ------------------ //
 
-void genGalaxy(vector color, vector center, body * part, int begin, int end)
+void genGalaxy(float4 color, float4 center, billard * part, int begin, int end)
 {
   for(int i = begin; i < end; i++)
   {
-    part->mass[i] = 1.0f;
+    part->mass[i] = 10.0f;
 
     //distribute the particles in a random circle around z axis
     float x = (i-begin)*sin((i-begin)) / (float) (2 * end-begin);
     float y = (i-begin)*cos((i-begin)) / (float) (2 * end-begin);
     float z = 0;
-    part->pos[i].x = x + center.x;
-    part->pos[i].y = y + center.y;
-    part->pos[i].z = z + center.z;
-    part->pos[i].w = 0.0f;
+    (*part->pos)[i].x = x + center.x;
+    (*part->pos)[i].y = y + center.y;
+    (*part->pos)[i].z = z + center.z;
+    (*part->pos)[i].w = 0.0f;
 
     //give some initial velocity 
-    part->vel[i].x = -6 * y;
-    part->vel[i].y =  6 * x;
-    part->vel[i].z = 0;
-    part->vel[i].w = 0;
+    (*part->vel)[i].x = 0;//-6 * y;
+    (*part->vel)[i].y = 0;//6 * x;
+    (*part->vel)[i].z = 0;
+    (*part->vel)[i].w = 0;
 
     //just make them red and full alpha
-    part->color[i].x = color.x;
-    part->color[i].y = color.y;
-    part->color[i].z = color.z;
-    part->color[i].w = color.w;
+    (*part->color)[i].x = color.x;
+    (*part->color)[i].y = color.y;
+    (*part->color)[i].z = color.z;
+    (*part->color)[i].w = color.w;
   }
   return;
 }
 
-body * genData(int numPart)
+billard * genGalaxy(int numPart)
 {
-  int num = numPart;
-  body * part = new body[1];
+int num = numPart;
+  if(num <= 0) 
+    return NULL;
+  billard * part = new billard[1];
   
   part->mass = new GLfloat[num];
-  part->pos = * new std::vector<vector>(num);
-  part->color = * new std::vector<vector>(num);
-  part->vel = * new std::vector<vector>(num);
+  part->pos = new std::vector<float4>(num);
+  part->color = new std::vector<float4>(num);
+  part->vel = new std::vector<float4>(num);
   
   // Generate Galaxy data
-  vector color;
+  float4 color;
   color.x = color.y = color.z = color.w = 1.0f;
-  vector center;
+  float4 center;
   center.x = center.y = center.z = -1.0f;
   genGalaxy(color, center, part, num/2, num);
   center.x = center.y = center.z =  1.0f;
   genGalaxy(color, center, part, 0, num/2);
   return part;
+}
+
+fluid * genFluid(int numPart)
+{
+  int i;
+  int num = numPart;
+  if(num <= 0) 
+    return NULL;
+  fluid * p = new fluid[1];
+  
+  p->mass = new GLfloat[num];
+  p->pos = new std::vector<float4>(num);
+  p->color = new std::vector<float4>(num);
+  p->vel = new std::vector<float4>(num);
+  
+ // set mass, color, velocity
+  for( i = 0; i < numPart; i++){
+    p->mass[i] = 1;
+    (*p->color)[i].x = (*p->color)[i].y = (*p->color)[i].w = 1.0f;
+    (*p->color)[i].z = 1.0f;
+    (*p->vel)[i].x = (*p->vel)[i].y = (*p->vel)[i].z = 0.0f;
+  }
+  (*p->pos)[0].x = (*p->pos)[0].y = (*p->pos)[0].z = 0.0f;
+  (*p->pos)[0].w = 0.0f;
+  // set position and neighbors
+  for (i = 1; i < numPart; i++) {
+    (*p->pos)[i].x = (*p->pos)[i].y = (*p->pos)[i].z = (*p->pos)[i-1].x + 0.12;
+    (*p->pos)[i].w = 0.0f;
+  }
+  return p;
+}
+
+float lenth(float4 u, float4 v)
+{
+  float x, y, z;
+
+  x = u.x - v.x;
+  y = u.y - v.y;
+  z = u.z - v.z;
+
+  return sqrt(x*x + y*y + z*z);
+}
+
+solid * genSolid(int numPart)
+{
+  int i;
+  if(numPart <= 0)
+    return NULL;
+  solid * p = new solid[1];
+
+  // instantiate
+  p->mass = new GLfloat[numPart];
+  p->radius = new GLfloat[numPart];
+  p->color = new std::vector<float4>(numPart);
+  p->pos = new std::vector<float4>(numPart);
+  p->vel = new std::vector<float4>(numPart);
+  p->accel = new std::vector<float4>(numPart);
+  p->neighbors = new std::vector<int>();
+  p->lZero = new std::vector<float>();
+
+  // set mass, color, velocity
+  for( i = 0; i < numPart; i++){
+    p->mass[i] = 1;
+    (*p->color)[i].x = (*p->color)[i].y = (*p->color)[i].w = 1.0f;
+    (*p->color)[i].z = 0.0f;
+    (*p->vel)[i].x = (*p->vel)[i].y = (*p->vel)[i].z = 0.0f;
+    (*p->accel)[i].x = (*p->accel)[i].y = (*p->accel)[i].z = 0;
+  }
+  (*p->pos)[0].x = (*p->pos)[0].y = (*p->pos)[0].z = 0.0f;
+  (*p->pos)[0].w = 0.0f;
+  // set position and neighbors
+  for (i = 1; i < numPart; i++) {
+    (*p->pos)[i].x = (*p->pos)[i].y = (*p->pos)[i].z = (*p->pos)[i-1].x + 0.1;
+    (*p->pos)[i].w = 0.0f;
+    p->neighbors->push_back(i-1);
+    p->neighbors->push_back(i);
+    p->lZero->push_back(lenth((*p->pos)[i-1], (*p->pos)[i]));
+  }
+
+  return p;
 }
 
 #define getAtributes(FIELD); \
@@ -69,13 +151,13 @@ body * genData(int numPart)
   file >> str; \
   if(str.compare("=")) \
   std::cout << "Error reading data file" << std::endl;
-
-body * loadDataFromFile(std::string dataFileName, int * numPart)
+/*
+data * loadDataFromFile(std::string dataFileName, int * numPart)
 {
   std::fstream file(dataFileName.c_str());
   std::string str;
   
-  body * b = new body;
+  data * b = new data;
   *numPart = 0;
 
   // IF file exists
@@ -94,9 +176,9 @@ body * loadDataFromFile(std::string dataFileName, int * numPart)
 
   b->mass = new GLfloat[*numPart];
   b->radius = new GLfloat[*numPart];
-  b->pos = * new std::vector<vector>(*numPart);
-  b->vel = * new std::vector<vector>(*numPart);
-  b->color = * new std::vector<vector>(*numPart);
+  b->pos = * new std::vector<float4>(*numPart);
+  b->vel = * new std::vector<float4>(*numPart);
+  b->color = * new std::vector<float4>(*numPart);
 
   file.close();
   file.open(dataFileName.c_str());
@@ -135,4 +217,20 @@ body * loadDataFromFile(std::string dataFileName, int * numPart)
   }
 
   return b;
+}
+*/
+data * genData(int NUM_PART_FLUID, int NUM_PART_SOLID)
+{
+  data * d = new data[1];
+
+  d->f = NULL;
+  d->s = NULL;
+
+  d->f = genFluid(NUM_PART_FLUID);
+  d->s = genSolid(NUM_PART_SOLID);
+
+  d->f->size = NUM_PART_FLUID;
+  d->s->size = NUM_PART_SOLID;
+  
+  return d;
 }

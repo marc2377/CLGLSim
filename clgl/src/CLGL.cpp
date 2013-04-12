@@ -266,17 +266,17 @@ cl::Buffer* CLGL::CLGLLoadDataToDevice(cl_bool blocking, size_t bufferBytesSize,
 /*
  * Load host data hostMemory to Device in VBO
  */
-cl::Memory* CLGL::CLGLLoadVBODataToDevice(size_t bufferBytesSize, void * hostMemory, cl_mem_flags flag)
+cl::Memory* CLGL::CLGLLoadVBODataToDevice(size_t bufferBytesSize, void * hostMemory, cl_mem_flags flag, GLenum target)
 {
   GLuint id = 0;  // 0 is reserved, glGenBuffersARB() will return non-zero id if success
 
   glGenBuffers(1, &id);                          // create a vbo
-  glBindBuffer(GL_ARRAY_BUFFER, id);                      // activate vbo id to use
-  glBufferData(GL_ARRAY_BUFFER, bufferBytesSize, hostMemory, GL_DYNAMIC_DRAW); // create buffer
+  glBindBuffer(target, id);                      // activate vbo id to use
+  glBufferData(target, bufferBytesSize, hostMemory, GL_DYNAMIC_DRAW); // create buffer
 
   // check data size in VBO is same as input array, if not return 0 and delete VBO
   int bufferSize = 0;
-  glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufferSize);
+  glGetBufferParameteriv(target, GL_BUFFER_SIZE, &bufferSize);
   if((int)bufferBytesSize != bufferSize){
     glDeleteBuffers(1, &id);
     id = 0;
@@ -288,7 +288,7 @@ cl::Memory* CLGL::CLGLLoadVBODataToDevice(size_t bufferBytesSize, void * hostMem
   this->vbo.push_back(id);
   
   //this was important for working inside blender!
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(target, 0);
   glFinish();  // Wait for OpenGL to finish
 
   // Create buffer from OpenGL VBO
@@ -303,12 +303,20 @@ cl::Memory* CLGL::CLGLLoadVBODataToDevice(size_t bufferBytesSize, void * hostMem
 }
 
 /*
+ * Load host data hostMemory to Device in VBO
+ */
+cl::Memory* CLGL::CLGLLoadVBODataToDevice(size_t bufferBytesSize, void * hostMemory, cl_mem_flags flag)
+{
+  return this->CLGLLoadVBODataToDevice(bufferBytesSize, hostMemory, flag, GL_ARRAY_BUFFER);
+}
+
+/*
  * Set Arguments to kernel
  */
-void CLGL::CLGLSetArg(int argNum, cl::Memory buffer, cl::Kernel kernel)
+void CLGL::CLGLSetArg(int argNum, cl::Memory * buffer, cl::Kernel kernel)
 {
   try{
-    kernel.setArg(argNum, buffer);
+    kernel.setArg(argNum, *buffer);
   }
   catch(cl::Error error){
     std::cout << error.what() << ' ' << CLGLError::errToStr(error.err())->c_str() << std::endl;

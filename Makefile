@@ -8,7 +8,7 @@ LIB_PATH_ATI=/opt/AMDAPP/lib/x86_64
 LIB_PATH_NVIDIA=/usr/include
 
 LIBS=-lOpenCL -lGL -lGLU -lglut -lGLEW
-INCLUDE_PATH=-Iclgl/include/ -Iwindow/include -Isim/include -Iconsole/include -IdataLoader/include -IdataStruct/include
+INCLUDE_PATH=-Iclgl/include/ -Iwindow/include -Isim/include -Iconsole/include -IdataLoader/include -IdataStruct/include -I./
 
 CL_PATH_ATI=/opt/AMDAPP/include/
 CL_PATH_NVIDIA=$(HOME)/NVIDIA_GPU_Computing_SDK/OpenCL/common/inc

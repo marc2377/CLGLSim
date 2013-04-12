@@ -21,7 +21,7 @@ class CLGLParser
     std::string kernelFile;
     std::string dataFile;
     int curKernel;
-    int particlesNum;
+    int particlesNum, NUM_PART_FLUID, NUM_PART_SOLID;
     bool dataFileSet;
     float rungeStep;
 

@@ -35,10 +35,12 @@ CLGLParser::CLGLParser(int argc, char * argv[])
   // Default configurations //
   // ---------------------- //
   this->curKernel = 1;
-  this->kernelFile = "kernels/rk4.cl";
+  this->kernelFile = "kernels/physics.cl";
   this->kernel = "Gravity_rk1";
   this->dataFile = "data.sim";
-  this->particlesNum = 2000;
+  this->particlesNum = 10;
+  this->NUM_PART_FLUID = (int)this->particlesNum/2;
+  this->NUM_PART_SOLID = this->particlesNum - this->NUM_PART_FLUID;
   this->dataFileSet = false;
   this->rungeStep = 0.001;
 
@@ -55,8 +57,11 @@ CLGLParser::CLGLParser(int argc, char * argv[])
         this->curKernel = 4;
     }
     // IF --num
-    else if(!strcmp(argv[i], "--num"))
+    else if(!strcmp(argv[i], "--num")){
       sscanf(argv[i+1], " %d", &(this->particlesNum));
+      this->NUM_PART_FLUID = this->particlesNum / 2;
+      this->NUM_PART_SOLID = this->particlesNum - this->NUM_PART_FLUID;
+    }
     // IF --precision
     else if(!strcmp(argv[i], "--precision"))
       sscanf(argv[i+1], " %f", &(this->rungeStep));

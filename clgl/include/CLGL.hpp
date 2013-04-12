@@ -75,6 +75,7 @@ class CLGL
     cl::Kernel* CLGLBuildKernel(std::string kernelFunctionName);
     
     //Transfer data between host and device
+    cl::Memory* CLGLLoadVBODataToDevice(size_t bufferBytesSize, void * hostMemory, cl_mem_flags flag, GLenum target);
     cl::Memory* CLGLLoadVBODataToDevice(size_t bufferBytesSize, void * hostMemory, cl_mem_flags flag);
     cl::Buffer* CLGLLoadDataToDevice(cl_bool blocking, size_t bufferBytesSize,const void * hostMemory, cl_mem_flags flag);
     void CLGLGetDataFromDevice(cl::Buffer * buffer,cl_bool blocking, int bytes_size, void *data);
@@ -82,7 +83,7 @@ class CLGL
     void CLGLReleaseMemory(cl::Buffer * buff);
 
     //Set the kernel arguments for data on device
-    void CLGLSetArg(int argNum, cl::Memory buffer, cl::Kernel kernel);
+    void CLGLSetArg(int argNum, cl::Memory * buffer, cl::Kernel kernel);
     //Set the simple kernel arguments
     void CLGLSetArg(int argNum, size_t bytesSize, void* buffer, cl::Kernel kernel);
     
