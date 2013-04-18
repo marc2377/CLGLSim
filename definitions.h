@@ -10,6 +10,8 @@
 
 #define FLUID 0
 #define SOLID 1
+#define GRAVITY 2
+#define ELETRIC 4
 
 /*
  * Data definitions
@@ -143,7 +145,6 @@ enum bufferMemory
   modificationVectorFlag, // Used in the bubbleSort3D
   sideSize,               // Size of the side of each cube
   rebuildTreeFlag,        // If true needs to rebuild grid
-  nPartPerIndex,           // Vector of number of particles per cube in the grid
 };
 
 #endif

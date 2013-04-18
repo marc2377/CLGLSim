@@ -62,7 +62,7 @@ __kernel void Solid_accel(
     r1 = pos[p1];
     r2 = pos[p2];
     l1 = r2 - r1;
-    l0 = normalize(l1) * lZero[i];
+    l0 = normalize(l1) * lZero[i/2];
     a1 = K * (l1 - l0);
     a2 = -K * (l1 - l0);
     a1 /= mass[p1];
@@ -96,11 +96,6 @@ __kernel void Solid_rk1(
     vel[i] += accel[i] * rungeStep;
     pos[i] += v * rungeStep;
   }
-  if(i == 0){
-    pos[i].x = 0.0f;
-    pos[i].y = 0.0f;
-    pos[i].z = 0.0f;
-  }
  
   return;
 }
@@ -127,7 +122,6 @@ __kernel void Fluid_Density(
     __global float4 * pos,
     __global int4 * gridCoord,
     __global int * nGridCubes,
-    __global int * nPartPerIndex,
     __global int * sideSize,
     __global int2 * gridIndex,
     int n)
@@ -155,14 +149,13 @@ __kernel void Fluid_Density(
     gCoord = gridCoord[i];
     if(gridIndex[i].y == SOLID)
       return;
-    dens = 0.0f;
-    m = mass[gCoord.w];
+    dens = m = mass[gCoord.w];
     p = pos[gCoord.w];
 
     for(int j = gCoord.x-1; j <= gCoord.x+1; j++){
       for(int k = gCoord.y-1; k <= gCoord.y+1; k++){
         for(int l = gCoord.z-1; l <= gCoord.z+1; l++){
-          index = getNeighbors(nPartPerIndex, (j+shift) * gridCubes2 + (k+shift) * gridCubes + (l+shift));
+          index = getNeighbors(gridIndex, (j+shift) * gridCubes2 + (k+shift) * gridCubes + (l+shift), n);
           for(int in = index.x; in < index.y; in++){
             if(gridIndex[in].y == SOLID || in == i)
               continue;
@@ -211,7 +204,6 @@ __kernel void Fluid_rk1(
     __global float4 * pos,
     __global int4 * gridCoord,
     __global int * nGridCubes,
-    __global int * nPartPerIndex,
     __global int * sideSize,
     __global int2 * gridIndex,
     __global bool * rebuildTreeFlag,
@@ -259,7 +251,7 @@ __kernel void Fluid_rk1(
       for(int j = gCoord.x-1; j <= gCoord.x+1; j++){
         for(int k = gCoord.y-1; k <= gCoord.y+1; k++){
           for(int l = gCoord.z-1; l <= gCoord.z+1; l++){
-            index = getNeighbors(nPartPerIndex, (j+shift) * gridCubes2 + (k+shift) * gridCubes + (l+shift));
+            index = getNeighbors(gridIndex, (j+shift) * gridCubes2 + (k+shift) * gridCubes + (l+shift), n);
             for(int in = index.x; in < index.y; in++){
               if(gridIndex[in].y == SOLID || in == i)
                 continue;
@@ -314,7 +306,6 @@ __kernel void  Gravity_rk1(
     __global int2 * gridIndex,
     __global int4 * gridCoord,
     __global int * nGridCubes,
-    __global int * nPartPerIndex,
     __global bool * rebuildTreeFlag,
     __global int * sideSize,
     float rungeStep, 
@@ -345,7 +336,7 @@ __kernel void  Gravity_rk1(
     for(int j = gCoord.x-1; j <= gCoord.x+1; j++){
       for(int k = gCoord.y-1; k <= gCoord.y+1; k++){
         for(int l = gCoord.z-1; l <= gCoord.z+1; l++){
-          index = getNeighbors(nPartPerIndex, (j+shift) * gridCubes2 + (k+shift) * gridCubes + (l+shift));
+          index = getNeighbors(gridIndex, (j+shift) * gridCubes2 + (k+shift) * gridCubes + (l+shift), n);
           for(int in = index.x; in < index.y; in++){
             if(gridIndex[in].y == SOLID)
               continue;

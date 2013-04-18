@@ -106,7 +106,6 @@ __kernel void setGridIndex(
     __global int2 * gridIndex,
     __global int4 * gridCoord, 
     __global int * nGridCubes,
-    __global int * nPartPerIndex,
     int n)
 {
   __private unsigned int i = get_global_id(0);
@@ -117,7 +116,6 @@ __kernel void setGridIndex(
   if(i < n){
     aux = gridCoord[i] + gridCubes / 2;
     gridIndex[i].x = (aux.x * gridCubes2) + (aux.y * gridCubes) + (aux.z); 
-    atomic_inc(&(nPartPerIndex[gridIndex[i].x]));
   }
 
   return;

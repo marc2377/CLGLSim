@@ -38,8 +38,8 @@ CLGLParser::CLGLParser(int argc, char * argv[])
   this->kernelFile = "kernels/physics.cl";
   this->kernel = "Gravity_rk1";
   this->dataFile = "data.sim";
-  this->particlesNum = 10;
-  this->NUM_PART_FLUID = (int)this->particlesNum/2;
+  this->particlesNum = 1000;
+  this->NUM_PART_FLUID = (int)this->particlesNum - 20;
   this->NUM_PART_SOLID = this->particlesNum - this->NUM_PART_FLUID;
   this->dataFileSet = false;
   this->rungeStep = 0.001;

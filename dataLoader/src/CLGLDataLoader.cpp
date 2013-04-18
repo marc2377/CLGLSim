@@ -88,7 +88,9 @@ fluid * genFluid(int numPart)
   (*p->pos)[0].w = 0.0f;
   // set position and neighbors
   for (i = 1; i < numPart; i++) {
-    (*p->pos)[i].x = (*p->pos)[i].y = (*p->pos)[i].z = (*p->pos)[i-1].x + 0.12;
+    (*p->pos)[i].x = /*(*p->pos)[i-1].x + 0.12;*/-cos(i);
+    (*p->pos)[i].y = /*(*p->pos)[i-1].x + 0.12;*/sin(i);
+    (*p->pos)[i].z = (*p->pos)[i-1].x + 0.12;
     (*p->pos)[i].w = 0.0f;
   }
   return p;
@@ -124,7 +126,7 @@ solid * genSolid(int numPart)
 
   // set mass, color, velocity
   for( i = 0; i < numPart; i++){
-    p->mass[i] = 1;
+    p->mass[i] = 1.0f;
     (*p->color)[i].x = (*p->color)[i].y = (*p->color)[i].w = 1.0f;
     (*p->color)[i].z = 0.0f;
     (*p->vel)[i].x = (*p->vel)[i].y = (*p->vel)[i].z = 0.0f;
@@ -134,7 +136,9 @@ solid * genSolid(int numPart)
   (*p->pos)[0].w = 0.0f;
   // set position and neighbors
   for (i = 1; i < numPart; i++) {
-    (*p->pos)[i].x = (*p->pos)[i].y = (*p->pos)[i].z = (*p->pos)[i-1].x + 0.1;
+    (*p->pos)[i].x = /*(*p->pos)[i-1].x + 0.1;*/ cos(i);
+    (*p->pos)[i].y = /*(*p->pos)[i-1].x + 0.1;*/ sin(i);
+    (*p->pos)[i].z = (*p->pos)[i-1].x + 0.1;
     (*p->pos)[i].w = 0.0f;
     p->neighbors->push_back(i-1);
     p->neighbors->push_back(i);

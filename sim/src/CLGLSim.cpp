@@ -30,14 +30,16 @@ int CLGLSim::curKernel = 0;
 void CLGLSim::CLGLRunKernel()
 {
   bool isTreeIncorrect = false;
-
+ 
   // Runs the kernel
   CLGLSim::clgl->CLGLRunKernel((*CLGLSim::rkx)[Fluid_Density], CLGLSim::ParticlesNum);
   CLGLSim::clgl->CLGLRunKernel((*CLGLSim::rkx)[Fluid_rk1], CLGLSim::ParticlesNum);
  
   // Debug Fuction 
-  //std::cout << "CLGLRunKernel" << std::endl;
+  //static int a = 0;
+  //std::cout << "CLGLRunKernel: " << a << std::endl;
   //CLGLSim::dataStruct->printParameters();
+  //a++;
 
   CLGLSim::clgl->CLGLRunKernel((*CLGLSim::rkx)[Memset], CLGLSim::NUM_PART_SOLID);
   CLGLSim::clgl->CLGLRunKernel((*CLGLSim::rkx)[Solid_accel], CLGLSim::indexBufferSize);
@@ -152,11 +154,10 @@ void CLGLSim::CLGLStartPhysics(CLGL * clgl, float rungeStep, data * hostData, CL
       clgl->CLGLSetArg(3, &(*buff)[beg + gridIndex], (*ker)[i]);
       clgl->CLGLSetArg(4, &(*buff)[beg + gridCoord], (*ker)[i]);
       clgl->CLGLSetArg(5, &(*buff)[beg + nGridCubes], (*ker)[i]);
-      clgl->CLGLSetArg(6, &(*buff)[beg + nPartPerIndex], (*ker)[i]);
-      clgl->CLGLSetArg(7, &(*buff)[beg + rebuildTreeFlag], (*ker)[i]);
-      clgl->CLGLSetArg(8, &(*buff)[beg + sideSize], (*ker)[i]);
-      clgl->CLGLSetArg(9, sizeof(float), &rungeStep, (*ker)[i]);
-      clgl->CLGLSetArg(10, sizeof(int), &(CLGLSim::ParticlesNum), (*ker)[i]);
+      clgl->CLGLSetArg(6, &(*buff)[beg + rebuildTreeFlag], (*ker)[i]);
+      clgl->CLGLSetArg(7, &(*buff)[beg + sideSize], (*ker)[i]);
+      clgl->CLGLSetArg(8, sizeof(float), &rungeStep, (*ker)[i]);
+      clgl->CLGLSetArg(9, sizeof(int), &(CLGLSim::ParticlesNum), (*ker)[i]);
     }
 
     // Set Args to MemSet
@@ -188,10 +189,9 @@ void CLGLSim::CLGLStartPhysics(CLGL * clgl, float rungeStep, data * hostData, CL
     clgl->CLGLSetArg(2, &(*mem)[fluidPos], (*ker)[Fluid_Density]);
     clgl->CLGLSetArg(3, &(*buff)[beg + gridCoord], (*ker)[Fluid_Density]);
     clgl->CLGLSetArg(4, &(*buff)[beg + nGridCubes], (*ker)[Fluid_Density]);
-    clgl->CLGLSetArg(5, &(*buff)[beg + nPartPerIndex], (*ker)[Fluid_Density]);
-    clgl->CLGLSetArg(6, &(*buff)[beg + sideSize], (*ker)[Fluid_Density]);
-    clgl->CLGLSetArg(7, &(*buff)[beg + gridIndex], (*ker)[Fluid_Density]);
-    clgl->CLGLSetArg(8, sizeof(int), &(CLGLSim::ParticlesNum), (*ker)[Fluid_Density]);
+    clgl->CLGLSetArg(5, &(*buff)[beg + sideSize], (*ker)[Fluid_Density]);
+    clgl->CLGLSetArg(6, &(*buff)[beg + gridIndex], (*ker)[Fluid_Density]);
+    clgl->CLGLSetArg(7, sizeof(int), &(CLGLSim::ParticlesNum), (*ker)[Fluid_Density]);
     // Fluid_rk1
     clgl->CLGLSetArg(0, &(*buff)[fluidMass], (*ker)[Fluid_rk1]);
     clgl->CLGLSetArg(1, &(*buff)[fluidVel], (*ker)[Fluid_rk1]);
@@ -199,12 +199,11 @@ void CLGLSim::CLGLStartPhysics(CLGL * clgl, float rungeStep, data * hostData, CL
     clgl->CLGLSetArg(3, &(*mem)[fluidPos], (*ker)[Fluid_rk1]);
     clgl->CLGLSetArg(4, &(*buff)[beg + gridCoord], (*ker)[Fluid_rk1]);
     clgl->CLGLSetArg(5, &(*buff)[beg + nGridCubes], (*ker)[Fluid_rk1]);
-    clgl->CLGLSetArg(6, &(*buff)[beg + nPartPerIndex], (*ker)[Fluid_rk1]);
-    clgl->CLGLSetArg(7, &(*buff)[beg + sideSize], (*ker)[Fluid_rk1]);
-    clgl->CLGLSetArg(8, &(*buff)[beg + gridIndex], (*ker)[Fluid_rk1]);
-    clgl->CLGLSetArg(9, &(*buff)[beg + rebuildTreeFlag], (*ker)[Fluid_rk1]);
-    clgl->CLGLSetArg(10, sizeof(float), &(CLGLSim::rungeStep), (*ker)[Fluid_rk1]);
-    clgl->CLGLSetArg(11, sizeof(int), &(CLGLSim::ParticlesNum), (*ker)[Fluid_rk1]);
+    clgl->CLGLSetArg(6, &(*buff)[beg + sideSize], (*ker)[Fluid_rk1]);
+    clgl->CLGLSetArg(7, &(*buff)[beg + gridIndex], (*ker)[Fluid_rk1]);
+    clgl->CLGLSetArg(8, &(*buff)[beg + rebuildTreeFlag], (*ker)[Fluid_rk1]);
+    clgl->CLGLSetArg(9, sizeof(float), &(CLGLSim::rungeStep), (*ker)[Fluid_rk1]);
+    clgl->CLGLSetArg(10, sizeof(int), &(CLGLSim::ParticlesNum), (*ker)[Fluid_rk1]);
   }
   catch(cl::Error error)
   {
